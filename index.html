@@ -229,6 +229,116 @@
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.001s!important;transition-duration:.08s!important;}
   }
+
+  /* ================== RADIO (module intégré) ================== */
+  #radioview{
+    position:absolute;inset:0;z-index:12;
+    background:radial-gradient(120% 80% at 50% -10%, var(--navy-soft) 0%, var(--navy) 42%, var(--navy-2) 100%);
+    display:flex;flex-direction:column;
+    transform:translateX(100%);
+    transition:transform .34s cubic-bezier(.32,.72,0,1);
+    will-change:transform;
+  }
+  #radioview.open{transform:none;}
+  #radioview .appbar{background:transparent;border-bottom:1px solid var(--line);}
+  .radio-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 0 132px;}
+  .rgroup{
+    padding:22px 26px 4px;font-size:10.5px;letter-spacing:3px;font-weight:600;
+    text-transform:uppercase;color:rgba(255,255,255,.40);
+  }
+  .rrow{
+    display:flex;align-items:center;gap:13px;width:100%;
+    padding:9px 16px 9px 26px;background:none;border:0;color:#fff;
+    font-family:inherit;text-align:left;cursor:pointer;
+  }
+  .rrow:active{background:rgba(255,255,255,.05);}
+  .rrow.playing .rname{color:var(--gold-soft);}
+  .rlogo{
+    flex:0 0 auto;width:44px;height:44px;border-radius:13px;
+    background:#fff;display:grid;place-items:center;overflow:hidden;
+    border:1px solid rgba(255,255,255,.14);
+  }
+  .rlogo img{width:30px;height:30px;object-fit:contain;display:block;}
+  .rlogo .mono{font-family:var(--serif);font-weight:700;font-size:15px;color:var(--navy);letter-spacing:-.5px;}
+  .rtxt{flex:1;min-width:0;}
+  .rname{font-size:13.5px;font-weight:600;letter-spacing:.3px;}
+  .rtag{
+    font-family:var(--serif);font-style:italic;font-size:11px;color:var(--muted);margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .rfav{flex:0 0 auto;background:none;border:0;padding:9px;cursor:pointer;color:rgba(255,255,255,.26);}
+  .rfav svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;
+    stroke-linejoin:round;}
+  .rfav.on{color:var(--gold);}
+  .rfav.on svg{fill:currentColor;}
+  .rbars{flex:0 0 auto;display:none;align-items:flex-end;gap:2.5px;height:15px;padding-right:2px;}
+  .rrow.playing .rbars{display:flex;}
+  .rbars i{width:2.5px;height:5px;border-radius:2px;background:var(--gold);
+    animation:eq .9s ease-in-out infinite;}
+  .rbars i:nth-child(2){animation-delay:.15s}
+  .rbars i:nth-child(3){animation-delay:.3s}
+  @keyframes eq{0%,100%{height:4px}50%{height:15px}}
+  body.radio-paused .rbars i{animation-play-state:paused;}
+
+  /* ---- mini-lecteur persistant ---- */
+  #mini{
+    position:absolute;left:11px;right:11px;bottom:calc(32px + var(--safe-bottom));
+    z-index:30;display:none;align-items:center;gap:11px;
+    padding:8px 8px 8px 9px;border-radius:18px;
+    background:rgba(11,25,42,.93);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:0 16px 36px -14px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.07);
+    animation:miniup .32s cubic-bezier(.22,.61,.36,1);
+  }
+  #mini.show{display:flex;}
+  @keyframes miniup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  #mini .rlogo{width:38px;height:38px;border-radius:11px;}
+  #mini .rlogo img{width:26px;height:26px;}
+  #mini .rtxt{display:block;overflow:hidden;}
+  #mini .rname,#mini .rtag{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #mini .rname{font-size:12.5px;}
+  #mini .rtag{font-size:10.5px;}
+  #mini .mtap{display:flex;align-items:center;gap:11px;flex:1;min-width:0;
+    background:none;border:0;padding:0;color:#fff;font-family:inherit;text-align:left;cursor:pointer;}
+  .mbtn{
+    flex:0 0 auto;background:none;border:0;cursor:pointer;color:#fff;
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-family:inherit;
+    transition:background .15s;
+  }
+  .mbtn:active{background:rgba(255,255,255,.12);}
+  .mbtn svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .mbtn.play{background:var(--gold);color:var(--navy);}
+  .mbtn.play svg{fill:currentColor;stroke:none;}
+  .mbtn.on{color:var(--gold);}
+  .mbtn .tlabel{position:absolute;font-size:8px;font-weight:700;transform:translateY(13px);}
+
+  /* ---- feuille minuteur ---- */
+  #sheet{position:absolute;inset:0;z-index:40;display:none;}
+  #sheet.show{display:block;}
+  #sheet .veil{position:absolute;inset:0;background:rgba(3,10,18,.6);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
+  #sheet .card{
+    position:absolute;left:12px;right:12px;bottom:calc(22px + var(--safe-bottom));
+    background:#12283F;border:1px solid rgba(255,255,255,.12);border-radius:22px;
+    padding:20px 18px 14px;box-shadow:0 24px 60px -18px rgba(0,0,0,.9);
+    animation:miniup .3s cubic-bezier(.22,.61,.36,1);
+  }
+  #sheet h3{margin:0 0 4px;font-family:var(--serif);font-size:17px;font-weight:700;}
+  #sheet p{margin:0 0 16px;font-size:11.5px;color:var(--muted);line-height:1.5;}
+  #sheet .opts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+  #sheet .opts button{
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;
+    border-radius:13px;padding:13px 4px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  #sheet .opts button:active{background:rgba(255,255,255,.14);}
+  #sheet .opts button.on{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+  #sheet .off{
+    margin-top:11px;width:100%;background:none;border:0;color:var(--muted);
+    font-family:inherit;font-size:12.5px;padding:12px;cursor:pointer;
+  }
+
 </style>
 </head>
 <body>
@@ -288,6 +398,50 @@
     </div>
   </div>
 
+  <!-- RADIO -->
+  <div id="radioview">
+    <div class="appbar">
+      <button id="radioBack" aria-label="Accueil">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="title">RADIO<small>Choisir une station</small></div>
+      <button id="radioTimerBtn" aria-label="Minuteur d'arrêt">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+      </button>
+    </div>
+    <div class="radio-scroll" id="radioList"></div>
+  </div>
+
+  <!-- MINI-LECTEUR -->
+  <div id="mini">
+    <button class="mtap" id="miniTap">
+      <span class="rlogo" id="miniLogo"></span>
+      <span class="rtxt">
+        <span class="rname" id="miniName">—</span>
+        <span class="rtag" id="miniNow">En pause</span>
+      </span>
+    </button>
+    <button class="mbtn play" id="miniPlay" aria-label="Lecture / pause">
+      <svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg>
+    </button>
+    <button class="mbtn" id="miniStop" aria-label="Arrêter">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <!-- FEUILLE MINUTEUR -->
+  <div id="sheet">
+    <div class="veil" id="sheetVeil"></div>
+    <div class="card">
+      <h3>Minuteur d'arrêt</h3>
+      <p>La lecture s'interrompra automatiquement au terme choisi.</p>
+      <div class="opts" id="sleepOpts"></div>
+      <button class="off" id="sleepOff">Désactiver le minuteur</button>
+    </div>
+  </div>
+
+  <audio id="radioAudio" preload="none"></audio>
+
   <!-- splash -->
   <div id="splash">
     <svg class="seal" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -330,6 +484,10 @@ const APPS = [
   { id:"coffee", name:"COFFEE", tag:"En séance",
     url:"https://coffee-taupe-gamma.vercel.app/",
     icon:'<svg viewBox="0 0 78 78" xmlns="http://www.w3.org/2000/svg"><g transform="translate(39 39) scale(0.85) translate(-39 -38.75)"><g fill="none" stroke="#6DD5DC" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"><path d="M30 23.7 q3 -3 0 -6 q-3 -3 0 -6" opacity="0.5"/><path d="M39 23.7 q3 -3 0 -6 q-3 -3 0 -6" opacity="0.5"/><path d="M48 23.7 q3 -3 0 -6 q-3 -3 0 -6" opacity="0.5"/><path d="M25 30 L29.5 62 Q39 65.8 48.5 62 L53 30"/><ellipse cx="39" cy="30" rx="14" ry="3.8"/></g><path d="M26.5 41 Q39 47.8 51.5 41 L50.6 47 Q39 53.3 27.4 47 Z" fill="#F2C14E"/></g></svg>' }
+  ,
+  { id:"radio", name:"Radio", tag:"Écouter", internal:"radio",
+    url:"",
+    icon:'<svg viewBox="0 0 78 78" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#6DD5DC" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"><path d="M27 28 L52 15"/><rect x="16" y="28" width="46" height="34" rx="6"/><circle cx="30" cy="45" r="8"/><path d="M45 38 h11"/><path d="M45 52 h11"/></g><circle cx="30" cy="45" r="3" fill="#E3CC7A"/><rect x="44.5" y="42.8" width="12" height="4.4" rx="2.2" fill="#E3CC7A"/></svg>' }
 ];
 /* ---- build home grid ---- */
 const grid = document.getElementById("grid");
@@ -352,6 +510,7 @@ const fallback = document.getElementById("fallback");
 let current = null, loadTimer = null;
 
 function openApp(a){
+  if(a.internal === "radio"){ radioOpen(); return; }
   current = a;
   document.getElementById("appTitle").textContent = a.name;
   document.getElementById("appSub").textContent   = a.tag;
@@ -391,7 +550,287 @@ function openExternal(){ if(current) window.open(current.url, "_blank", "noopene
 
 window.addEventListener("popstate", ()=>{
   if(appview.classList.contains("open")) goHome();
+  if(radioview.classList.contains("open")) radioClose();
 });
+
+
+/* ==================================================================
+   RADIO — module intégré au lanceur (lecture continue hors iframe)
+   ================================================================== */
+const RF = "https://icecast.radiofrance.fr/";
+const STATIONS = [
+  /* ---- Info & talk ---- */
+  {id:"franceinfo", g:"Info & talk", n:"franceinfo",       t:"Information continue", d:"francetvinfo.fr",        u:RF+"franceinfo-midfi.mp3"},
+  {id:"inter",      g:"Info & talk", n:"France Inter",     t:"Généraliste",          d:"franceinter.fr",         u:RF+"franceinter-midfi.mp3"},
+  {id:"rtl",        g:"Info & talk", n:"RTL",              t:"Généraliste",          d:"rtl.fr",                 u:"https://icecast.rtl.fr/rtl-1-44-128"},
+  {id:"europe1",    g:"Info & talk", n:"Europe 1",         t:"Généraliste",          d:"europe1.fr",             u:"https://europe1.lmn.fm/europe1.mp3"},
+  {id:"rmc",        g:"Info & talk", n:"RMC",              t:"Info · talk · sport",  d:"rmc.bfmtv.com",          u:"https://audio.bfmtv.com/rmcradio_128.mp3"},
+  {id:"bfmbiz",     g:"Info & talk", n:"BFM Business",     t:"Économie & finance",   d:"bfmbusiness.bfmtv.com",  u:"https://audio.bfmtv.com/bfmbusiness_128.mp3"},
+  {id:"sud",        g:"Info & talk", n:"Sud Radio",        t:"Débats",               d:"sudradio.fr",            u:"https://start-sud.ice.infomaniak.ch/start-sud-high.mp3"},
+  {id:"iciparis",   g:"Info & talk", n:"ici Paris",        t:"Île-de-France 107.1",  d:"francebleu.fr",          u:RF+"fb1071-midfi.mp3"},
+
+  /* ---- Culture & classique ---- */
+  {id:"culture",    g:"Culture & classique", n:"France Culture",   t:"Savoirs & idées",   d:"franceculture.fr",  u:RF+"franceculture-midfi.mp3"},
+  {id:"musique",    g:"Culture & classique", n:"France Musique",   t:"Classique & jazz",  d:"francemusique.fr",  u:RF+"francemusique-midfi.mp3"},
+  {id:"classique",  g:"Culture & classique", n:"Radio Classique",  t:"Classique",         d:"radioclassique.fr", u:"https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3"},
+  {id:"tsf",        g:"Culture & classique", n:"TSF Jazz",         t:"Jazz",              d:"tsfjazz.com",       u:"https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"},
+  {id:"jazzradio",  g:"Culture & classique", n:"Jazz Radio",       t:"Jazz & soul",       d:"jazzradio.fr",      u:"https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3"},
+  {id:"fip",        g:"Culture & classique", n:"FIP",              t:"Éclectique",        d:"fip.fr",            u:RF+"fip-midfi.mp3"},
+  {id:"fipjazz",    g:"Culture & classique", n:"FIP Jazz",         t:"Webradio jazz",     d:"fip.fr",            u:RF+"fipjazz-midfi.mp3"},
+  {id:"fipgroove",  g:"Culture & classique", n:"FIP Groove",       t:"Webradio groove",   d:"fip.fr",            u:RF+"fipgroove-midfi.mp3"},
+
+  /* ---- Musique ---- */
+  {id:"nova",       g:"Musique", n:"Radio Nova",     t:"Le grand mix",     d:"nova.fr",        u:"https://novazz.ice.infomaniak.ch/novazz-128.mp3"},
+  {id:"ouifm",      g:"Musique", n:"OUI FM",         t:"Rock",             d:"ouifm.fr",       u:"https://ouifm.ice.infomaniak.ch/ouifm-high.mp3"},
+  {id:"meuh",       g:"Musique", n:"Radio Meuh",     t:"Indé & découverte", d:"radiomeuh.com", u:"https://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3"},
+  {id:"chante",     g:"Musique", n:"Chante France",  t:"Chanson française", d:"chantefrance.com", u:"https://chantefrance.ice.infomaniak.ch/chantefrance-128.mp3"},
+  {id:"rfm",        g:"Musique", n:"RFM",            t:"Le meilleur du pop-rock", d:"rfm.fr",  u:"https://stream.rfm.fr/rfm.mp3"},
+  {id:"europe2",    g:"Musique", n:"Europe 2",       t:"Pop-rock",         d:"europe2.fr",     u:"https://europe2.lmn.fm/europe2.mp3"},
+  {id:"rtl2",       g:"Musique", n:"RTL2",           t:"Pop-rock",         d:"rtl2.fr",        u:"https://icecast.rtl.fr/rtl2-1-44-128"},
+  {id:"nrj",        g:"Musique", n:"NRJ",            t:"Hits",             d:"nrj.fr",         u:"https://scdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3"},
+  {id:"fun",        g:"Musique", n:"Fun Radio",      t:"Dance",            d:"funradio.fr",    u:"https://icecast.rtl.fr/fun-1-44-128"},
+  {id:"skyrock",    g:"Musique", n:"Skyrock",        t:"Rap & R'n'B",      d:"skyrock.fm",     u:"https://icecast.skyrock.net/s/natio_mp3_128k"},
+  {id:"mouv",       g:"Musique", n:"Mouv'",          t:"Rap & cultures urbaines", d:"mouv.fr", u:RF+"mouv-midfi.mp3"}
+];
+
+const RKEY = {fav:"fidal.radio.fav", last:"fidal.radio.last"};
+const rstore = {
+  get(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+let favs = rstore.get(RKEY.fav, []);
+
+const audio      = document.getElementById("radioAudio");
+const radioview  = document.getElementById("radioview");
+const radioList  = document.getElementById("radioList");
+const mini       = document.getElementById("mini");
+const miniName   = document.getElementById("miniName");
+const miniNow    = document.getElementById("miniNow");
+const miniLogo   = document.getElementById("miniLogo");
+const miniPlay   = document.getElementById("miniPlay");
+const sheet      = document.getElementById("sheet");
+let station = null, npTimer = null, npDead = false, sleepEnd = 0, sleepTimer = null;
+
+const ICON_PLAY  = '<svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg>';
+const ICON_STAR  = '<svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+
+function logoEl(s, cls){
+  const box = document.createElement("span");
+  box.className = cls || "rlogo";
+  const img = document.createElement("img");
+  img.alt = ""; img.loading = "lazy";
+  img.src = "https://www.google.com/s2/favicons?domain="+s.d+"&sz=128";
+  img.addEventListener("error", ()=>{
+    box.innerHTML = '<span class="mono">'+s.n.replace(/[^A-Za-zÀ-ÿ]/g,"").slice(0,2).toUpperCase()+'</span>';
+  });
+  box.appendChild(img);
+  return box;
+}
+
+function buildRadioList(){
+  radioList.innerHTML = "";
+  const groups = [];
+  if(favs.length) groups.push(["Favoris", STATIONS.filter(s=>favs.includes(s.id))]);
+  ["Info & talk","Culture & classique","Musique"].forEach(g=>{
+    groups.push([g, STATIONS.filter(s=>s.g===g)]);
+  });
+  groups.forEach(([label, list])=>{
+    if(!list.length) return;
+    const h = document.createElement("div");
+    h.className = "rgroup"; h.textContent = label;
+    radioList.appendChild(h);
+    list.forEach(s=>{
+      const row = document.createElement("div");
+      row.className = "rrow";
+      row.dataset.id = s.id;
+      row.appendChild(logoEl(s));
+      const txt = document.createElement("div");
+      txt.className = "rtxt";
+      txt.innerHTML = '<div class="rname"></div><div class="rtag"></div>';
+      txt.querySelector(".rname").textContent = s.n;
+      txt.querySelector(".rtag").textContent  = s.t;
+      row.appendChild(txt);
+      const bars = document.createElement("span");
+      bars.className = "rbars"; bars.innerHTML = "<i></i><i></i><i></i>";
+      row.appendChild(bars);
+      const fav = document.createElement("button");
+      fav.className = "rfav" + (favs.includes(s.id) ? " on" : "");
+      fav.setAttribute("aria-label","Favori");
+      fav.innerHTML = ICON_STAR;
+      fav.addEventListener("click", e=>{ e.stopPropagation(); toggleFav(s.id); });
+      row.appendChild(fav);
+      row.addEventListener("click", ()=>{
+        if(station && station.id===s.id){ togglePlay(); } else { play(s); }
+      });
+      radioList.appendChild(row);
+    });
+  });
+  markPlaying();
+}
+
+function toggleFav(id){
+  favs = favs.includes(id) ? favs.filter(x=>x!==id) : favs.concat([id]);
+  rstore.set(RKEY.fav, favs);
+  buildRadioList();
+}
+
+function markPlaying(){
+  radioList.querySelectorAll(".rrow").forEach(r=>{
+    r.classList.toggle("playing", !!station && r.dataset.id===station.id);
+  });
+  document.body.classList.toggle("radio-paused", audio.paused);
+}
+
+function play(s){
+  station = s;
+  rstore.set(RKEY.last, s.id);
+  audio.src = s.u;
+  audio.load();
+  audio.play().catch(()=>{ setNow("Lecture impossible — réessayez"); });
+  showMini();
+  setNow("Connexion…");
+  npDead = false;
+  pollNow();
+}
+
+function togglePlay(){
+  if(!station) return;
+  if(audio.paused){
+    if(!audio.src) { play(station); return; }
+    audio.play().catch(()=>{});
+  } else {
+    audio.pause();
+  }
+}
+
+function stopRadio(){
+  audio.pause(); audio.removeAttribute("src"); audio.load();
+  station = null; mini.classList.remove("show");
+  clearTimeout(npTimer); setSleep(0);
+  markPlaying();
+  if("mediaSession" in navigator) navigator.mediaSession.metadata = null;
+}
+
+function setMiniLogo(s){
+  const cur = document.querySelector("#mini .rlogo");
+  const el  = logoEl(s);
+  el.id = "miniLogo";
+  if(cur) cur.replaceWith(el);
+}
+function showMini(){
+  miniName.textContent = station.n;
+  setMiniLogo(station);
+  mini.classList.add("show");
+  syncPlayBtn();
+}
+
+function syncPlayBtn(){
+  miniPlay.innerHTML = audio.paused ? ICON_PLAY : ICON_PAUSE;
+  markPlaying();
+}
+
+function setNow(txt){
+  miniNow.textContent = txt || (station ? station.t : "");
+  if(station) radioList.querySelectorAll('.rrow[data-id="'+station.id+'"] .rtag')
+    .forEach(el=>{ el.textContent = txt || station.t; });
+  if("mediaSession" in navigator && station){
+    try{
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: (txt && txt.indexOf("…")<0 && txt.indexOf("impossible")<0) ? txt : station.n,
+        artist: station.n,
+        album: "FIDAL Notaires — Radio"
+      });
+    }catch(e){}
+  }
+}
+
+/* Titre en cours : servi par la fonction serverless /api/np (métadonnées ICY).
+   Si la fonction n'est pas déployée, on cesse simplement d'interroger. */
+function pollNow(){
+  clearTimeout(npTimer);
+  if(!station || npDead) return;
+  const s = station;
+  fetch("/api/np?u="+encodeURIComponent(s.u))
+    .then(r=>{ if(!r.ok) throw 0; return r.json(); })
+    .then(j=>{
+      if(station !== s) return;
+      if(j && j.title) setNow(j.title);
+      else if(miniNow.textContent==="Connexion…") setNow(null);
+      npTimer = setTimeout(pollNow, 20000);
+    })
+    .catch(()=>{ npDead = true; if(station===s && miniNow.textContent==="Connexion…") setNow(null); });
+}
+
+/* ---- minuteur d'arrêt ---- */
+const SLEEPS = [15,30,60,90];
+function renderSleepOpts(){
+  const box = document.getElementById("sleepOpts");
+  box.innerHTML = "";
+  SLEEPS.forEach(m=>{
+    const b = document.createElement("button");
+    b.textContent = m+" min";
+    b.className = (sleepEnd && Math.round((sleepEnd-Date.now())/60000)===m) ? "on" : "";
+    b.addEventListener("click", ()=>{ setSleep(m); sheet.classList.remove("show"); });
+    box.appendChild(b);
+  });
+}
+function setSleep(min){
+  clearInterval(sleepTimer);
+  if(!min){
+    sleepEnd = 0;
+    document.getElementById("radioTimerBtn").classList.remove("on");
+    if(station) setNow(null);
+    return;
+  }
+  sleepEnd = Date.now() + min*60000;
+  document.getElementById("radioTimerBtn").classList.add("on");
+  sleepTimer = setInterval(()=>{
+    if(Date.now() >= sleepEnd){ audio.pause(); syncPlayBtn(); setSleep(0); }
+  }, 5000);
+}
+
+/* ---- ouverture / fermeture de l'écran radio ---- */
+function radioOpen(){
+  buildRadioList();
+  radioview.classList.add("open");
+  history.pushState({app:"radio"}, "", "#radio");
+}
+function radioClose(){ radioview.classList.remove("open"); }
+
+document.getElementById("radioBack").addEventListener("click", ()=>history.back());
+document.getElementById("radioTimerBtn").addEventListener("click", ()=>{ renderSleepOpts(); sheet.classList.add("show"); });
+document.getElementById("sheetVeil").addEventListener("click", ()=>sheet.classList.remove("show"));
+document.getElementById("sleepOff").addEventListener("click", ()=>{ setSleep(0); sheet.classList.remove("show"); });
+miniPlay.addEventListener("click", togglePlay);
+document.getElementById("miniStop").addEventListener("click", stopRadio);
+document.getElementById("miniTap").addEventListener("click", ()=>{ if(!radioview.classList.contains("open")) radioOpen(); });
+
+audio.addEventListener("playing", ()=>{ syncPlayBtn(); });
+audio.addEventListener("pause",   ()=>{ syncPlayBtn(); if(station) setNow(miniNow.textContent==="Connexion…"?null:miniNow.textContent); });
+audio.addEventListener("error",   ()=>{ if(station){ setNow("Flux indisponible"); syncPlayBtn(); } });
+audio.addEventListener("stalled", ()=>{ if(station && !audio.paused) setNow("Reconnexion…"); });
+
+if("mediaSession" in navigator){
+  try{
+    navigator.mediaSession.setActionHandler("play",  ()=>{ if(station) audio.play().catch(()=>{}); });
+    navigator.mediaSession.setActionHandler("pause", ()=>audio.pause());
+    navigator.mediaSession.setActionHandler("stop",  stopRadio);
+  }catch(e){}
+}
+
+/* ---- reprise de la dernière station (sans lecture automatique) ---- */
+(function restoreLast(){
+  const id = rstore.get(RKEY.last, null);
+  const s = STATIONS.find(x=>x.id===id);
+  if(!s) return;
+  station = s;
+  miniName.textContent = s.n;
+  setMiniLogo(s);
+  miniNow.textContent = "En pause";
+  mini.classList.add("show");
+  syncPlayBtn();
+})();
 
 /* ---- live clock ---- */
 function tick(){
