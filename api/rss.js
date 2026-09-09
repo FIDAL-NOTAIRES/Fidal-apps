@@ -18,7 +18,8 @@ export const config = { maxDuration: 30 };
 const SOURCES = [
   /* ---------- Juridique & notarial ---------- */
   { id:"village",  g:"juridique", n:"Village de la Justice", d:"village-justice.com", une:true,
-    us:["https://www.village-justice.com/articles/spip.php?page=backend"] },
+    us:["https://www.village-justice.com/articles/spip.php?page=backend"],
+    min:5, gn:"village-justice.com" },
   { id:"actuju",   g:"juridique", n:"Actu-Juridique",        d:"actu-juridique.fr", une:true,
     us:["https://www.actu-juridique.fr/feed/"] },
   { id:"dalloz",   g:"juridique", n:"Dalloz Actualité",      d:"dalloz-actualite.fr", une:true,
@@ -38,9 +39,6 @@ const SOURCES = [
   { id:"echoseco", g:"eco", n:"Les Échos — Économie",  d:"lesechos.fr", une:true,
     us:["https://services.lesechos.fr/rss/les-echos-economie.xml",
         "https://www.lesechos.fr/rss/rss_economie.xml"], gn:"lesechos.fr" },
-  { id:"echosune", g:"eco", n:"Les Échos — La une",    d:"lesechos.fr", une:false,
-    us:["https://services.lesechos.fr/rss/la-une.xml",
-        "https://www.lesechos.fr/rss/rss_une_titres.xml"] },
   { id:"tribune",  g:"eco", n:"La Tribune",            d:"latribune.fr", une:false,
     us:["https://www.latribune.fr/feed.xml"] },
   { id:"bimmo",    g:"eco", n:"Business Immo",         d:"businessimmo.com", une:true,
@@ -221,14 +219,15 @@ function stripGnSuffix(title, name) {
 }
 
 async function grab(src, perFeed, deadline) {
-  let lastErr = "source injoignable";
+  let lastErr = "source injoignable", thin = null;
   for (const url of (src.us || [])) {
     if (Date.now() > deadline) { lastErr = "budget de temps épuisé"; break; }
     const { xml, err } = await fetchXml(url, Math.min(6000, deadline - Date.now()));
     if (!xml) { lastErr = err; continue; }
     const items = parseFeed(xml, src, perFeed);
-    if (items.length) return { src, ok: true, err: null, via: url, mode: "direct", items };
-    lastErr = "flux vide ou illisible";
+    if (items.length >= (src.min || 1)) return { src, ok: true, err: null, via: url, mode: "direct", items };
+    if (items.length) { thin = { src, ok: true, err: null, via: url, mode: "direct", items }; }
+    lastErr = items.length ? "flux trop maigre (" + items.length + ")" : "flux vide ou illisible";
   }
   if (src.gn && Date.now() < deadline) {
     const url = googleNewsUrl(src.gn);
@@ -242,6 +241,7 @@ async function grab(src, perFeed, deadline) {
       lastErr = lastErr + " ; Google Actualités : " + err;
     }
   }
+  if (thin) return thin;
   return { src, ok: false, err: lastErr, via: null, mode: null, items: [] };
 }
 
