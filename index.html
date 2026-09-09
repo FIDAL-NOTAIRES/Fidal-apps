@@ -1567,13 +1567,16 @@ function pUpdateBadges(){
   const n = pAlertCount();
   const b = document.getElementById("presseBadge");
   if(b){ b.hidden = !n; b.textContent = n > 99 ? "99+" : n; }
+  // la tuile d'accueil additionne les alertes de veille et les dépôts du cabinet non vus
+  const dep = (typeof cabUnread === "function") ? cabUnread() : 0;
+  const total = n + dep;
   const tile = document.querySelector('.app[data-app="presse"]');
   if(tile){
     let t = tile.querySelector(".tilebadge");
-    if(!n){ if(t) t.remove(); }
+    if(!total){ if(t) t.remove(); }
     else{
       if(!t){ t = document.createElement("span"); t.className = "tilebadge"; tile.appendChild(t); }
-      t.textContent = n > 99 ? "99+" : n;
+      t.textContent = total > 99 ? "99+" : total;
     }
   }
 }
@@ -1819,6 +1822,7 @@ async function cabLoad(force){
     cabLoading = false;
     cabRenderIfVisible();
     pRenderTabs();
+    pUpdateBadges();
   }
 }
 function cabRenderIfVisible(){ if(pTab === "cabinet") cabRender(); }
@@ -1907,7 +1911,7 @@ function cabRender(){
 
     card.addEventListener("click", ()=>{
       const k = cabReadKey(it);
-      if(pRead.indexOf(k) === -1){ pRead.unshift(k); pstore.set(PKEY.read, pRead); pRenderTabs(); }
+      if(pRead.indexOf(k) === -1){ pRead.unshift(k); pstore.set(PKEY.read, pRead); pRenderTabs(); pUpdateBadges(); }
       const target = it.link || it.file_url;
       if(target) window.open(target, "_blank", "noopener");
     });
@@ -2167,6 +2171,9 @@ document.getElementById("depAuthor").addEventListener("change", e=>{
     setTimeout(()=>{
       if(!presseview.classList.contains("open")) pLoad(true);
     }, 2600);
+  }
+  if(!presseview.classList.contains("open")){
+    setTimeout(()=>cabLoad(true), 3400);
   }
 })();
 
