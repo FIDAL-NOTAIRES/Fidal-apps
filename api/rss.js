@@ -13,50 +13,61 @@
 // Le lanceur récupère le catalogue avec le flux, il n'y a rien à changer
 // dans index.html.
 
+export const config = { maxDuration: 30 };
+
 const SOURCES = [
   /* ---------- Juridique & notarial ---------- */
-  { id:"village",  g:"juridique", n:"Village de la Justice", d:"village-justice.com",
-    u:"https://www.village-justice.com/articles/spip.php?page=backend", une:true },
-  { id:"actuju",   g:"juridique", n:"Actu-Juridique",        d:"actu-juridique.fr",
-    u:"https://www.actu-juridique.fr/feed/", une:true },
-  { id:"dalloz",   g:"juridique", n:"Dalloz Actualité",      d:"dalloz-actualite.fr",
-    u:"https://www.dalloz-actualite.fr/rss.xml", une:true },
-  { id:"mdd",      g:"juridique", n:"Le Monde du Droit",     d:"lemondedudroit.fr",
-    u:"https://www.lemondedudroit.fr/feed", une:false },
-  { id:"notaires", g:"juridique", n:"Notaires de France",    d:"notaires.fr",
-    u:"https://www.notaires.fr/fr/rss.xml", une:true },
-  { id:"legifr",   g:"juridique", n:"Légifrance — JO",       d:"legifrance.gouv.fr",
-    u:"https://www.legifrance.gouv.fr/contenu/rss/jorf", une:false },
+  { id:"village",  g:"juridique", n:"Village de la Justice", d:"village-justice.com", une:true,
+    us:["https://www.village-justice.com/articles/spip.php?page=backend"] },
+  { id:"actuju",   g:"juridique", n:"Actu-Juridique",        d:"actu-juridique.fr", une:true,
+    us:["https://www.actu-juridique.fr/feed/"] },
+  { id:"dalloz",   g:"juridique", n:"Dalloz Actualité",      d:"dalloz-actualite.fr", une:true,
+    us:["https://www.dalloz-actualite.fr/rss/all",
+        "https://www.dalloz-actualite.fr/flux-rss",
+        "https://www.dalloz-actualite.fr/rss.xml"], gn:"dalloz-actualite.fr" },
+  { id:"mdd",      g:"juridique", n:"Le Monde du Droit",     d:"lemondedudroit.fr", une:false,
+    us:["https://www.lemondedudroit.fr/?format=feed&type=rss",
+        "https://www.lemondedudroit.fr/feed"], gn:"lemondedudroit.fr" },
+  { id:"notaires", g:"juridique", n:"Notaires de France",    d:"notaires.fr", une:true,
+    us:["https://www.notaires.fr/fr/rss.xml"], gn:"notaires.fr" },
+  { id:"legifr",   g:"juridique", n:"Légifrance — JO",       d:"legifrance.gouv.fr", une:false,
+    us:["https://www.legifrance.gouv.fr/contenu/rss/jorf",
+        "https://www.legifrance.gouv.fr/rss/jorf.xml"], gn:"legifrance.gouv.fr" },
 
   /* ---------- Économie & immobilier ---------- */
-  { id:"echoseco", g:"eco", n:"Les Échos — Économie",  d:"lesechos.fr",
-    u:"https://services.lesechos.fr/rss/les-echos-economie.xml", une:true },
-  { id:"echosune", g:"eco", n:"Les Échos — La une",    d:"lesechos.fr",
-    u:"https://services.lesechos.fr/rss/la-une.xml", une:false },
-  { id:"tribune",  g:"eco", n:"La Tribune",            d:"latribune.fr",
-    u:"https://www.latribune.fr/feed.xml", une:false },
-  { id:"bimmo",    g:"eco", n:"Business Immo",         d:"businessimmo.com",
-    u:"https://www.businessimmo.com/rss", une:true },
-  { id:"figimmo",  g:"eco", n:"Le Figaro Immobilier",  d:"lefigaro.fr",
-    u:"https://www.lefigaro.fr/rss/figaro_immobilier.xml", une:true },
-  { id:"batiactu", g:"eco", n:"Batiactu",              d:"batiactu.com",
-    u:"https://www.batiactu.com/flux-rss/actualite.xml", une:false },
-  { id:"msi",      g:"eco", n:"MySweetImmo",           d:"mysweetimmo.com",
-    u:"https://www.mysweetimmo.com/feed/", une:false },
+  { id:"echoseco", g:"eco", n:"Les Échos — Économie",  d:"lesechos.fr", une:true,
+    us:["https://services.lesechos.fr/rss/les-echos-economie.xml",
+        "https://www.lesechos.fr/rss/rss_economie.xml"], gn:"lesechos.fr" },
+  { id:"echosune", g:"eco", n:"Les Échos — La une",    d:"lesechos.fr", une:false,
+    us:["https://services.lesechos.fr/rss/la-une.xml",
+        "https://www.lesechos.fr/rss/rss_une_titres.xml"] },
+  { id:"tribune",  g:"eco", n:"La Tribune",            d:"latribune.fr", une:false,
+    us:["https://www.latribune.fr/feed.xml"] },
+  { id:"bimmo",    g:"eco", n:"Business Immo",         d:"businessimmo.com", une:true,
+    us:["https://www.businessimmo.com/rss","https://www.businessimmo.com/rss.xml"],
+    gn:"businessimmo.com" },
+  { id:"figimmo",  g:"eco", n:"Le Figaro Immobilier",  d:"lefigaro.fr", une:true,
+    us:["https://www.lefigaro.fr/rss/figaro_immobilier.xml"] },
+  { id:"batiactu", g:"eco", n:"Batiactu",              d:"batiactu.com", une:false,
+    us:["https://www.batiactu.com/rss/actualites.xml",
+        "https://www.batiactu.com/flux-rss/actualite.xml"], gn:"batiactu.com" },
+  { id:"msi",      g:"eco", n:"MySweetImmo",           d:"mysweetimmo.com", une:false,
+    us:["https://www.mysweetimmo.com/feed/"] },
 
   /* ---------- Presse générale ---------- */
-  { id:"lemonde",  g:"generale", n:"Le Monde",     d:"lemonde.fr",
-    u:"https://www.lemonde.fr/rss/une.xml", une:true },
-  { id:"lefigaro", g:"generale", n:"Le Figaro",    d:"lefigaro.fr",
-    u:"https://www.lefigaro.fr/rss/figaro_actualites.xml", une:true },
-  { id:"libe",     g:"generale", n:"Libération",   d:"liberation.fr",
-    u:"https://www.liberation.fr/arc/outboundfeeds/rss-all/?outputType=xml", une:false },
-  { id:"finfo",    g:"generale", n:"France Info",  d:"francetvinfo.fr",
-    u:"https://www.francetvinfo.fr/titres.rss", une:true },
-  { id:"lepoint",  g:"generale", n:"Le Point",     d:"lepoint.fr",
-    u:"https://www.lepoint.fr/24h-infos/rss.xml", une:false },
-  { id:"f24",      g:"generale", n:"France 24",    d:"france24.com",
-    u:"https://www.france24.com/fr/rss", une:false }
+  { id:"lemonde",  g:"generale", n:"Le Monde",     d:"lemonde.fr", une:true,
+    us:["https://www.lemonde.fr/rss/une.xml"] },
+  { id:"lefigaro", g:"generale", n:"Le Figaro",    d:"lefigaro.fr", une:true,
+    us:["https://www.lefigaro.fr/rss/figaro_actualites.xml"] },
+  { id:"libe",     g:"generale", n:"Libération",   d:"liberation.fr", une:false,
+    us:["https://www.liberation.fr/arc/outboundfeeds/rss-all/?outputType=xml"] },
+  { id:"finfo",    g:"generale", n:"France Info",  d:"francetvinfo.fr", une:true,
+    us:["https://www.francetvinfo.fr/titres.rss"] },
+  { id:"lepoint",  g:"generale", n:"Le Point",     d:"lepoint.fr", une:false,
+    us:["https://www.lepoint.fr/24h-infos/rss.xml","https://www.lepoint.fr/rss.xml"],
+    gn:"lepoint.fr" },
+  { id:"f24",      g:"generale", n:"France 24",    d:"france24.com", une:false,
+    us:["https://www.france24.com/fr/rss"] }
 ];
 
 const GROUPS = {
@@ -165,6 +176,75 @@ function parseFeed(xml, src, perFeed) {
 /* Handler                                                             */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Récupération : URL candidates, puis repli Google Actualités          */
+/* ------------------------------------------------------------------ */
+
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+           "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+async function fetchXml(url, ms) {
+  const ctrl = new AbortController();
+  const kill = setTimeout(() => ctrl.abort(), ms || 8000);
+  try {
+    const headers = {
+      "User-Agent": UA,
+      "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, text/html;q=0.8, */*;q=0.5",
+      "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.6",
+      "Cache-Control": "no-cache"
+    };
+    try { headers.Referer = new URL(url).origin + "/"; } catch (e) {}
+    const r = await fetch(url, { signal: ctrl.signal, redirect: "follow", headers });
+    if (!r.ok) return { xml: null, err: "HTTP " + r.status };
+    const buf = await r.arrayBuffer();
+    return { xml: decodeBody(buf, r.headers.get("content-type")), err: null };
+  } catch (e) {
+    return { xml: null, err: e && e.name === "AbortError" ? "délai dépassé" : ((e && e.message) || "erreur réseau") };
+  } finally {
+    clearTimeout(kill);
+  }
+}
+
+function googleNewsUrl(domain) {
+  return "https://news.google.com/rss/search?q=" +
+         encodeURIComponent("site:" + domain + " when:3d") +
+         "&hl=fr&gl=FR&ceid=FR:fr";
+}
+
+// Google Actualités suffixe les titres par " - Nom du média" : on le retire.
+function stripGnSuffix(title, name) {
+  const cut = title.lastIndexOf(" - ");
+  if (cut < 12) return title;
+  const tail = title.slice(cut + 3);
+  if (tail.length <= 45) return title.slice(0, cut);
+  return title;
+}
+
+async function grab(src, perFeed, deadline) {
+  let lastErr = "source injoignable";
+  for (const url of (src.us || [])) {
+    if (Date.now() > deadline) { lastErr = "budget de temps épuisé"; break; }
+    const { xml, err } = await fetchXml(url, Math.min(6000, deadline - Date.now()));
+    if (!xml) { lastErr = err; continue; }
+    const items = parseFeed(xml, src, perFeed);
+    if (items.length) return { src, ok: true, err: null, via: url, mode: "direct", items };
+    lastErr = "flux vide ou illisible";
+  }
+  if (src.gn && Date.now() < deadline) {
+    const url = googleNewsUrl(src.gn);
+    const { xml, err } = await fetchXml(url, Math.min(7000, deadline - Date.now()));
+    if (xml) {
+      const items = parseFeed(xml, src, perFeed).map(it => ({
+        s: it.s, t: stripGnSuffix(it.t, src.n), l: it.l, d: it.d, x: ""
+      }));
+      if (items.length) return { src, ok: true, err: null, via: url, mode: "google", items };
+    } else if (err) {
+      lastErr = lastErr + " ; Google Actualités : " + err;
+    }
+  }
+  return { src, ok: false, err: lastErr, via: null, mode: null, items: [] };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -191,32 +271,8 @@ export default async function handler(req, res) {
   const max = Math.min(parseInt(q.max, 10) || 120, 250);
   const perFeed = Math.max(6, Math.ceil(max / Math.max(wanted.length, 1)) + 6);
 
-  const results = await Promise.all(wanted.map(async src => {
-    const ctrl = new AbortController();
-    const kill = setTimeout(() => ctrl.abort(), 8000);
-    try {
-      const r = await fetch(src.u, {
-        signal: ctrl.signal,
-        redirect: "follow",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; FIDAL-Apps/1.0; +https://fidal-apps.vercel.app)",
-          "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.5",
-          "Accept-Language": "fr-FR,fr;q=0.9"
-        }
-      });
-      if (!r.ok) return { src, ok: false, err: "HTTP " + r.status, items: [] };
-      const buf = await r.arrayBuffer();
-      const xml = decodeBody(buf, r.headers.get("content-type"));
-      const items = parseFeed(xml, src, perFeed);
-      if (!items.length) return { src, ok: false, err: "flux vide ou illisible", items: [] };
-      return { src, ok: true, err: null, items };
-    } catch (e) {
-      const msg = e && e.name === "AbortError" ? "délai dépassé" : (e && e.message) || "erreur réseau";
-      return { src, ok: false, err: msg, items: [] };
-    } finally {
-      clearTimeout(kill);
-    }
-  }));
+  const deadline = Date.now() + 20000;   // garde-fou : la fonction doit rendre la main
+  const results = await Promise.all(wanted.map(src => grab(src, perFeed, deadline)));
 
   // fusion + dédoublonnage par lien, tri par date décroissante
   const seen = new Set();
@@ -242,7 +298,7 @@ export default async function handler(req, res) {
     at: new Date().toISOString(),
     groups: GROUPS,
     sources: catalog,
-    status: results.map(r => ({ id: r.src.id, ok: r.ok, err: r.err, n: r.items.length })),
+    status: results.map(r => ({ id: r.src.id, ok: r.ok, err: r.err, n: r.items.length, mode: r.mode, via: r.via })),
     items
   });
 }
