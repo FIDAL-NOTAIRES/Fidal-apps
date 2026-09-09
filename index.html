@@ -339,6 +339,202 @@
     font-family:inherit;font-size:12.5px;padding:12px;cursor:pointer;
   }
 
+
+  /* ================== PRESSE (module intégré) ================== */
+  #presseview,#presseprefs{
+    position:absolute;inset:0;z-index:12;
+    background:radial-gradient(120% 80% at 50% -10%, var(--navy-soft) 0%, var(--navy) 42%, var(--navy-2) 100%);
+    display:flex;flex-direction:column;
+    transform:translateX(100%);
+    transition:transform .34s cubic-bezier(.32,.72,0,1);
+    will-change:transform;
+  }
+  #presseprefs{z-index:13;}
+  #presseview.open,#presseprefs.open{transform:none;}
+  #presseview .appbar,#presseprefs .appbar{background:transparent;border-bottom:1px solid var(--line);}
+  #presseview .appbar .pb{position:relative;}
+  .pbadge{
+    position:absolute;top:6px;right:5px;min-width:15px;height:15px;padding:0 3px;
+    border-radius:8px;background:var(--gold);color:var(--navy);
+    font-size:9px;font-weight:700;line-height:15px;text-align:center;
+  }
+
+  /* ---- onglets ---- */
+  .ptabs{
+    flex:0 0 auto;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;
+    padding:11px 14px 10px;border-bottom:1px solid var(--line);
+  }
+  .ptabs::-webkit-scrollbar{display:none;}
+  .ptab{
+    flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid var(--line);
+    color:rgba(255,255,255,.72);border-radius:999px;padding:7px 13px;
+    font-family:inherit;font-size:11.5px;font-weight:600;letter-spacing:.3px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .ptab .pcount{
+    font-size:9.5px;font-weight:700;background:rgba(255,255,255,.13);
+    border-radius:7px;padding:1px 5px;color:rgba(255,255,255,.8);
+  }
+  .ptab.on{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+  .ptab.on .pcount{background:rgba(15,34,56,.18);color:var(--navy);}
+
+  /* ---- barre de recherche ---- */
+  .psearch{
+    flex:0 0 auto;display:none;align-items:center;gap:9px;
+    padding:10px 16px;border-bottom:1px solid var(--line);
+  }
+  .psearch.show{display:flex;}
+  .psearch svg{width:17px;height:17px;flex:0 0 auto;fill:none;stroke:rgba(255,255,255,.45);
+    stroke-width:2;stroke-linecap:round;}
+  .psearch input{
+    flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;
+    font-family:inherit;font-size:13.5px;padding:4px 0;
+  }
+  .psearch input::placeholder{color:rgba(255,255,255,.34);}
+  .psearch button{
+    background:none;border:0;color:var(--muted);font-family:inherit;font-size:11.5px;
+    padding:5px 2px;cursor:pointer;
+  }
+
+  /* ---- bandeau d'état ---- */
+  .pstatus{
+    flex:0 0 auto;display:flex;align-items:center;gap:8px;
+    padding:8px 16px 8px 18px;font-size:10px;letter-spacing:.4px;
+    color:rgba(255,255,255,.38);border-bottom:1px solid var(--line);
+  }
+  .pstatus .pgrow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pstatus button{
+    background:none;border:0;color:rgba(255,255,255,.55);cursor:pointer;
+    padding:3px;display:grid;place-items:center;
+  }
+  .pstatus button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;}
+  .pstatus button.spin svg{animation:pspin .9s linear infinite;}
+  @keyframes pspin{to{transform:rotate(360deg)}}
+
+  /* ---- liste ---- */
+  .pscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 calc(28px + var(--safe-bottom));}
+  .pcard{
+    position:relative;display:block;width:100%;text-align:left;
+    background:none;border:0;border-bottom:1px solid var(--line);
+    color:#fff;font-family:inherit;cursor:pointer;
+    padding:14px 46px 14px 18px;
+  }
+  .pcard:active{background:rgba(255,255,255,.05);}
+  .pcard::before{
+    content:"";position:absolute;left:0;top:16px;bottom:16px;width:2.5px;
+    border-radius:0 3px 3px 0;background:var(--gold);
+  }
+  .pcard.read{opacity:.48;}
+  .pcard.read::before{display:none;}
+  .pmeta{display:flex;align-items:center;gap:7px;margin-bottom:6px;min-width:0;}
+  .plogo{
+    flex:0 0 auto;width:17px;height:17px;border-radius:5px;background:#fff;
+    display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+  }
+  .plogo img{width:13px;height:13px;object-fit:contain;display:block;}
+  .plogo .mono{font-family:var(--serif);font-weight:700;font-size:8px;color:var(--navy);}
+  .psrc{
+    font-size:9.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
+    color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44%;
+  }
+  .ptime{font-family:var(--serif);font-style:italic;font-size:10.5px;color:rgba(255,255,255,.40);
+    white-space:nowrap;}
+  .palert{
+    font-size:8.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
+    background:var(--gold);color:var(--navy);border-radius:5px;padding:2px 5px;white-space:nowrap;
+  }
+  .ptitle{margin:0;font-size:14px;font-weight:600;line-height:1.36;letter-spacing:.1px;}
+  .ptitle mark{background:rgba(255,201,0,.26);color:var(--gold-soft);border-radius:2px;padding:0 1px;}
+  .pdesc{
+    margin:5px 0 0;font-family:var(--serif);font-style:italic;font-size:11.5px;line-height:1.5;
+    color:var(--muted);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .pshare{
+    position:absolute;top:10px;right:6px;background:none;border:0;cursor:pointer;
+    width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    color:rgba(255,255,255,.34);
+  }
+  .pshare:active{background:rgba(255,255,255,.10);}
+  .pshare svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;}
+
+  /* ---- états vides / chargement ---- */
+  .pempty{
+    padding:60px 34px;text-align:center;color:var(--muted);
+    font-family:var(--serif);font-style:italic;font-size:13px;line-height:1.6;
+  }
+  .pskel{padding:14px 18px;border-bottom:1px solid var(--line);}
+  .pskel span{
+    display:block;height:9px;border-radius:5px;margin-bottom:8px;
+    background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));
+    background-size:220% 100%;animation:pshim 1.3s linear infinite;
+  }
+  .pskel span:nth-child(1){width:38%;}
+  .pskel span:nth-child(2){width:92%;height:11px;}
+  .pskel span:nth-child(3){width:64%;height:11px;margin-bottom:0;}
+  @keyframes pshim{from{background-position:120% 0}to{background-position:-120% 0}}
+
+  /* ---- réglages : alertes & sources ---- */
+  .pprefs-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:4px 0 calc(30px + var(--safe-bottom));}
+  .psec{padding:22px 20px 6px;font-size:10.5px;letter-spacing:3px;font-weight:600;
+    text-transform:uppercase;color:rgba(255,255,255,.40);}
+  .phint{padding:0 20px 12px;font-family:var(--serif);font-style:italic;font-size:11.5px;
+    line-height:1.55;color:var(--muted);}
+  .pkwadd{display:flex;gap:8px;padding:0 20px 12px;}
+  .pkwadd input{
+    flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid var(--line);
+    border-radius:12px;color:#fff;font-family:inherit;font-size:13px;padding:11px 13px;outline:0;
+  }
+  .pkwadd input::placeholder{color:rgba(255,255,255,.30);}
+  .pkwadd button{
+    flex:0 0 auto;background:var(--gold);border:0;border-radius:12px;color:var(--navy);
+    font-family:inherit;font-size:12.5px;font-weight:700;padding:0 16px;cursor:pointer;
+  }
+  .pkws{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px 6px;}
+  .pkw{
+    display:flex;align-items:center;gap:7px;background:rgba(255,201,0,.14);
+    border:1px solid rgba(255,201,0,.34);color:var(--gold-soft);
+    border-radius:999px;padding:6px 8px 6px 12px;font-size:12px;font-weight:600;
+  }
+  .pkw button{background:none;border:0;color:inherit;cursor:pointer;padding:0 2px;
+    font-size:15px;line-height:1;opacity:.72;}
+  .psrcrow{
+    display:flex;align-items:center;gap:12px;padding:10px 16px 10px 20px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .psrcrow .plogo{width:30px;height:30px;border-radius:9px;}
+  .psrcrow .plogo img{width:20px;height:20px;}
+  .psrcrow .plogo .mono{font-size:11px;}
+  .psrctxt{flex:1;min-width:0;}
+  .psrcname{font-size:13px;font-weight:600;}
+  .psrcstate{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--muted);margin-top:2px;
+    display:flex;align-items:center;gap:6px;}
+  .pdotst{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);flex:0 0 auto;}
+  .pdotst.ok{background:#4ED08A;}
+  .pdotst.ko{background:var(--orange);}
+  .pstar{flex:0 0 auto;background:none;border:0;padding:9px;cursor:pointer;color:rgba(255,255,255,.26);}
+  .pstar svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;
+    stroke-linejoin:round;}
+  .pstar.on{color:var(--gold);}
+  .pstar.on svg{fill:currentColor;}
+  .pwipe{
+    margin:18px 20px 0;width:calc(100% - 40px);background:none;border:1px solid var(--line);
+    border-radius:13px;color:var(--muted);font-family:inherit;font-size:12.5px;padding:13px;cursor:pointer;
+  }
+  .pwipe:active{background:rgba(255,255,255,.06);}
+
+  /* ---- pastille d'alerte sur la tuile d'accueil ---- */
+  .app{position:relative;}
+  .tilebadge{
+    position:absolute;top:-3px;right:6px;min-width:19px;height:19px;padding:0 5px;
+    border-radius:10px;background:var(--gold);color:var(--navy);
+    font-size:10.5px;font-weight:700;line-height:19px;text-align:center;
+    box-shadow:0 3px 10px -2px rgba(0,0,0,.6);
+  }
+
 </style>
 </head>
 <body>
@@ -410,6 +606,69 @@
       </button>
     </div>
     <div class="radio-scroll" id="radioList"></div>
+  </div>
+
+
+  <!-- PRESSE -->
+  <div id="presseview">
+    <div class="appbar">
+      <button id="presseBack" aria-label="Accueil">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="title">PRESSE<small>Le fil du jour</small></div>
+      <button id="presseSearchBtn" class="pb" aria-label="Rechercher">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+      </button>
+      <button id="pressePrefsBtn" class="pb" aria-label="Alertes et sources">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+        <span class="pbadge" id="presseBadge" hidden>0</span>
+      </button>
+    </div>
+
+    <div class="ptabs" id="presseTabs"></div>
+
+    <div class="psearch" id="presseSearch">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+      <input id="presseQuery" type="search" enterkeyhint="search" autocomplete="off"
+             placeholder="Rechercher : DPE, plus-value, bail commercial…">
+      <button id="presseSearchClose">Fermer</button>
+    </div>
+
+    <div class="pstatus">
+      <span class="pgrow" id="presseInfo">—</span>
+      <button id="presseRefresh" aria-label="Actualiser">
+        <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-.6 4M20 5v6h-6"/></svg>
+      </button>
+    </div>
+
+    <div class="pscroll" id="presseList"></div>
+  </div>
+
+  <!-- PRESSE — alertes & sources -->
+  <div id="presseprefs">
+    <div class="appbar">
+      <button id="prefsBack" aria-label="Retour">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="title">RÉGLAGES<small>Alertes &amp; sources</small></div>
+      <button aria-hidden="true" style="visibility:hidden"><svg viewBox="0 0 24 24"><path d="M5 5h14"/></svg></button>
+    </div>
+    <div class="pprefs-scroll">
+      <div class="psec">Mots-clés surveillés</div>
+      <div class="phint">Un article dont le titre ou le chapô contient l'un de ces mots est signalé par une pastille dorée, et la tuile PRESSE affiche le nombre d'alertes non lues.</div>
+      <div class="pkwadd">
+        <input id="kwInput" type="text" placeholder="Ex. : usufruit" autocomplete="off" enterkeyhint="done">
+        <button id="kwAdd">Ajouter</button>
+      </div>
+      <div class="pkws" id="kwList"></div>
+
+      <div class="psec">Sources suivies</div>
+      <div class="phint">L'étoile épingle une source dans l'onglet « Suivis ». La pastille indique l'état du dernier rafraîchissement.</div>
+      <div id="srcList"></div>
+
+      <button class="pwipe" id="markAllRead">Tout marquer comme lu</button>
+      <button class="pwipe" id="clearRead">Réinitialiser l'historique de lecture</button>
+    </div>
   </div>
 
   <!-- MINI-LECTEUR -->
@@ -488,6 +747,10 @@ const APPS = [
   { id:"radio", name:"Radio", tag:"Écouter", internal:"radio",
     url:"",
     icon:'<svg viewBox="0 0 78 78" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#6DD5DC" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"><path d="M27 28 L52 15"/><rect x="16" y="28" width="46" height="34" rx="6"/><circle cx="30" cy="45" r="8"/><path d="M45 38 h11"/><path d="M45 52 h11"/></g><circle cx="30" cy="45" r="3" fill="#E3CC7A"/><rect x="44.5" y="42.8" width="12" height="4.4" rx="2.2" fill="#E3CC7A"/></svg>' }
+  ,
+  { id:"presse", name:"Presse", tag:"S'informer", internal:"presse",
+    url:"",
+    icon:'<svg viewBox="0 0 78 78" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#6DD5DC" stroke-width="2.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20h34a4 4 0 0 1 4 4v34H23a5 5 0 0 1-5-5Z"/><path d="M56 30h5v23a5 5 0 0 1-5 5"/><path d="M26 39h9M26 46h20M26 52h20"/></g><rect x="25" y="26" width="21" height="9" rx="2" fill="#E3CC7A"/></svg>' }
 ];
 /* ---- build home grid ---- */
 const grid = document.getElementById("grid");
@@ -495,6 +758,7 @@ grid.innerHTML = "";
 APPS.forEach(a=>{
   const b = document.createElement("button");
   b.className = "app";
+  b.dataset.app = a.id;
   b.innerHTML =
     '<span class="tile" style="--accent-glow:rgba(78,152,160,.15)">'+a.icon+'</span>'+
     '<span class="name">'+a.name+'<small>'+a.tag+'</small></span>';
@@ -511,6 +775,7 @@ let current = null, loadTimer = null;
 
 function openApp(a){
   if(a.internal === "radio"){ radioOpen(); return; }
+  if(a.internal === "presse"){ presseOpen(); return; }
   current = a;
   document.getElementById("appTitle").textContent = a.name;
   document.getElementById("appSub").textContent   = a.tag;
@@ -551,6 +816,7 @@ function openExternal(){ if(current) window.open(current.url, "_blank", "noopene
 window.addEventListener("popstate", ()=>{
   if(appview.classList.contains("open")) goHome();
   if(radioview.classList.contains("open")) radioClose();
+  if(typeof pressePop === "function") pressePop();
 });
 
 
@@ -867,6 +1133,460 @@ const blob = new Blob([JSON.stringify(manifest)], {type:"application/manifest+js
 const link = document.createElement("link");
 link.rel = "manifest"; link.href = URL.createObjectURL(blob);
 document.head.appendChild(link);
+
+/* ==================================================================
+   PRESSE — module intégré au lanceur (revue de presse du cabinet)
+   Le catalogue des journaux vit dans /api/rss.js : rien à modifier ici
+   pour ajouter ou retirer une source.
+   ================================================================== */
+const PKEY = {
+  fav:"fidal.presse.fav", read:"fidal.presse.read",
+  kw:"fidal.presse.kw",   cache:"fidal.presse.cache", tab:"fidal.presse.tab"
+};
+const PMAXAGE = 15*60*1000;          // fraîcheur du cache local
+const PTABS = [
+  {k:"une",       l:"À la une"},
+  {k:"fav",       l:"Suivis"},
+  {k:"juridique", l:"Juridique"},
+  {k:"eco",       l:"Éco & immo"},
+  {k:"generale",  l:"Générale"}
+];
+
+const pstore = {
+  get(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+let pFav   = pstore.get(PKEY.fav, []);
+let pRead  = pstore.get(PKEY.read, []);
+let pKw    = pstore.get(PKEY.kw, []);
+let pTab   = pstore.get(PKEY.tab, "une");
+let pQuery = "";
+let pData  = pstore.get(PKEY.cache, null);   // {at, sources, status, items}
+let pLoading = false;
+let pSrcMap  = {};
+
+const presseview  = document.getElementById("presseview");
+const presseprefs = document.getElementById("presseprefs");
+const presseList  = document.getElementById("presseList");
+const presseTabs  = document.getElementById("presseTabs");
+const presseInfo  = document.getElementById("presseInfo");
+const presseQuery = document.getElementById("presseQuery");
+const presseSearch= document.getElementById("presseSearch");
+const presseRefreshBtn = document.getElementById("presseRefresh");
+
+const ICON_STAR_P  = '<svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+const ICON_SHARE_P = '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.4 10.8l7.2-4.1M8.4 13.2l7.2 4.1"/></svg>';
+
+/* ---- petits utilitaires ---- */
+function pnorm(s){
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+function pkey(l){ return String(l||"").split("?")[0].replace(/\/+$/,""); }
+function pago(iso){
+  if(!iso) return "";
+  const t = Date.parse(iso); if(isNaN(t)) return "";
+  const m = Math.round((Date.now()-t)/60000);
+  if(m < 1)   return "à l'instant";
+  if(m < 60)  return "il y a "+m+" min";
+  const h = Math.round(m/60);
+  if(h < 24)  return "il y a "+h+" h";
+  const d = new Date(t);
+  if(h < 48)  return "hier";
+  return d.toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+}
+function phour(iso){
+  const t = Date.parse(iso||""); if(isNaN(t)) return "—";
+  return new Date(t).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+}
+function pesc(s){
+  return String(s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+function pmark(txt, terms){
+  let out = pesc(txt);
+  terms.filter(Boolean).forEach(term=>{
+    const n = pnorm(out), q = pnorm(term);
+    if(!q || n.indexOf(q) === -1) return;
+    // surlignage insensible aux accents : on repère les positions sur la forme normalisée
+    let res = "", i = 0;
+    while(true){
+      const at = pnorm(out).indexOf(q, i);
+      if(at === -1){ res += out.slice(i); break; }
+      res += out.slice(i, at) + "<mark>" + out.slice(at, at+q.length) + "</mark>";
+      i = at + q.length;
+    }
+    out = res;
+  });
+  return out;
+}
+function plogoEl(src, cls){
+  const box = document.createElement("span");
+  box.className = cls || "plogo";
+  if(!src){ box.innerHTML = '<span class="mono">?</span>'; return box; }
+  const img = document.createElement("img");
+  img.alt = ""; img.loading = "lazy";
+  img.src = "https://www.google.com/s2/favicons?domain="+src.d+"&sz=128";
+  img.addEventListener("error", ()=>{
+    box.innerHTML = '<span class="mono">'+src.n.replace(/[^A-Za-zÀ-ÿ]/g,"").slice(0,2).toUpperCase()+'</span>';
+  });
+  box.appendChild(img);
+  return box;
+}
+
+/* ---- lecture / alertes ---- */
+function pIsRead(it){ return pRead.indexOf(pkey(it.l)) !== -1; }
+function pSetRead(it){
+  const k = pkey(it.l);
+  if(pRead.indexOf(k) !== -1) return;
+  pRead.unshift(k);
+  if(pRead.length > 800) pRead = pRead.slice(0, 800);
+  pstore.set(PKEY.read, pRead);
+}
+function pIsAlert(it){
+  if(!pKw.length) return false;
+  const hay = pnorm(it.t + " " + (it.x||""));
+  return pKw.some(k=>{ const n = pnorm(k); return n && hay.indexOf(n) !== -1; });
+}
+function pAlertCount(){
+  if(!pData || !pData.items) return 0;
+  return pData.items.filter(it=>pIsAlert(it) && !pIsRead(it)).length;
+}
+
+/* ---- filtrage ---- */
+function pItemsFor(tab){
+  if(!pData || !pData.items) return [];
+  return pData.items.filter(it=>{
+    const s = pSrcMap[it.s];
+    if(!s) return false;
+    if(tab === "une") return s.une;
+    if(tab === "fav") return pFav.indexOf(s.id) !== -1;
+    return s.g === tab;
+  });
+}
+function pVisible(){
+  let list = pItemsFor(pTab);
+  const q = pQuery.trim();
+  if(q){
+    const terms = q.split(/\s+/).map(pnorm).filter(Boolean);
+    list = list.filter(it=>{
+      const hay = pnorm(it.t+" "+(it.x||"")+" "+((pSrcMap[it.s]||{}).n||""));
+      return terms.every(t=>hay.indexOf(t) !== -1);
+    });
+  }
+  return list;
+}
+
+/* ---- rendu ---- */
+function pRenderTabs(){
+  presseTabs.innerHTML = "";
+  PTABS.forEach(t=>{
+    const unread = pItemsFor(t.k).filter(it=>!pIsRead(it)).length;
+    const b = document.createElement("button");
+    b.className = "ptab" + (t.k === pTab ? " on" : "");
+    b.innerHTML = '<span>'+(t.k === "fav" ? "★ " : "")+t.l+'</span>' +
+                  (unread ? '<span class="pcount">'+unread+'</span>' : '');
+    b.addEventListener("click", ()=>{
+      pTab = t.k; pstore.set(PKEY.tab, pTab);
+      pRenderTabs(); pRenderList(); presseList.scrollTop = 0;
+    });
+    presseTabs.appendChild(b);
+  });
+}
+
+function pRenderList(){
+  presseList.innerHTML = "";
+  if(pLoading && (!pData || !pData.items || !pData.items.length)){
+    for(let i=0;i<7;i++){
+      const s = document.createElement("div");
+      s.className = "pskel";
+      s.innerHTML = "<span></span><span></span><span></span>";
+      presseList.appendChild(s);
+    }
+    return;
+  }
+  const list = pVisible();
+  if(!list.length){
+    const e = document.createElement("div");
+    e.className = "pempty";
+    e.textContent = pQuery.trim()
+      ? "Aucun article ne contient « "+pQuery.trim()+" » dans cette rubrique."
+      : (pTab === "fav"
+          ? "Aucune source suivie pour l'instant. Ouvrez « Alertes & sources » et épinglez vos journaux."
+          : "Aucun article. Touchez la flèche pour actualiser.");
+    presseList.appendChild(e);
+    return;
+  }
+  const terms = pQuery.trim() ? pQuery.trim().split(/\s+/) : [];
+  const frag = document.createDocumentFragment();
+  list.forEach(it=>{
+    const src = pSrcMap[it.s] || null;
+    const card = document.createElement("div");
+    card.className = "pcard" + (pIsRead(it) ? " read" : "");
+
+    const meta = document.createElement("div");
+    meta.className = "pmeta";
+    meta.appendChild(plogoEl(src));
+    const sn = document.createElement("span");
+    sn.className = "psrc"; sn.textContent = src ? src.n : it.s;
+    meta.appendChild(sn);
+    const tm = document.createElement("span");
+    tm.className = "ptime"; tm.textContent = pago(it.d);
+    meta.appendChild(tm);
+    if(pIsAlert(it)){
+      const al = document.createElement("span");
+      al.className = "palert"; al.textContent = "Alerte";
+      meta.appendChild(al);
+    }
+    card.appendChild(meta);
+
+    const h = document.createElement("h3");
+    h.className = "ptitle";
+    h.innerHTML = terms.length ? pmark(it.t, terms) : pesc(it.t);
+    card.appendChild(h);
+
+    if(it.x){
+      const p = document.createElement("p");
+      p.className = "pdesc"; p.textContent = it.x;
+      card.appendChild(p);
+    }
+
+    const sh = document.createElement("button");
+    sh.className = "pshare"; sh.setAttribute("aria-label","Partager");
+    sh.innerHTML = ICON_SHARE_P;
+    sh.addEventListener("click", e=>{ e.stopPropagation(); pShare(it, src); });
+    card.appendChild(sh);
+
+    card.addEventListener("click", ()=>{
+      pSetRead(it);
+      card.classList.add("read");
+      pRenderTabs(); pUpdateBadges();
+      window.open(it.l, "_blank", "noopener");
+    });
+    frag.appendChild(card);
+  });
+  presseList.appendChild(frag);
+}
+
+function pRenderInfo(){
+  if(pLoading){ presseInfo.textContent = "Actualisation en cours…"; return; }
+  if(!pData){ presseInfo.textContent = "Aucune donnée — touchez la flèche"; return; }
+  const ko = (pData.status||[]).filter(s=>!s.ok).length;
+  const n  = (pData.items||[]).length;
+  presseInfo.textContent = "Mis à jour à " + phour(pData.at) + " · " + n + " article" + (n>1?"s":"") +
+    (ko ? " · " + ko + " source" + (ko>1?"s":"") + " indisponible" + (ko>1?"s":"") : "");
+}
+
+function pUpdateBadges(){
+  const n = pAlertCount();
+  const b = document.getElementById("presseBadge");
+  if(b){ b.hidden = !n; b.textContent = n > 99 ? "99+" : n; }
+  const tile = document.querySelector('.app[data-app="presse"]');
+  if(tile){
+    let t = tile.querySelector(".tilebadge");
+    if(!n){ if(t) t.remove(); }
+    else{
+      if(!t){ t = document.createElement("span"); t.className = "tilebadge"; tile.appendChild(t); }
+      t.textContent = n > 99 ? "99+" : n;
+    }
+  }
+}
+
+/* ---- chargement ---- */
+async function pLoad(force){
+  if(pLoading) return;
+  const fresh = pData && pData.at && (Date.now() - Date.parse(pData.at) < PMAXAGE);
+  if(fresh && !force){ pApply(pData); return; }
+  pLoading = true;
+  presseRefreshBtn.classList.add("spin");
+  pRenderInfo(); pRenderList();
+  try{
+    const r = await fetch("/api/rss?g=all&max=180", {cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j = await r.json();
+    if(!j || !Array.isArray(j.items)) throw new Error("réponse inattendue");
+    pData = j;
+    pstore.set(PKEY.cache, j);
+    pApply(j);
+  }catch(e){
+    presseInfo.textContent = pData
+      ? "Hors ligne — affichage du dernier relevé (" + phour(pData.at) + ")"
+      : "Impossible de joindre le service de presse.";
+    if(pData) pApply(pData, true);
+  }finally{
+    pLoading = false;
+    presseRefreshBtn.classList.remove("spin");
+    if(!pData) pRenderList();
+  }
+}
+function pApply(j, keepInfo){
+  pSrcMap = {};
+  (j.sources||[]).forEach(s=>{ pSrcMap[s.id] = s; });
+  const st = {};
+  (j.status||[]).forEach(s=>{ st[s.id] = s; });
+  Object.keys(pSrcMap).forEach(id=>{ pSrcMap[id].st = st[id] || null; });
+  pRenderTabs(); pRenderList(); pUpdateBadges();
+  if(!keepInfo) pRenderInfo();
+}
+
+/* ---- partage ---- */
+function pShare(it, src){
+  const label = it.t + (src ? " — " + src.n : "");
+  if(navigator.share){
+    navigator.share({title:it.t, text:label, url:it.l}).catch(()=>{});
+    return;
+  }
+  const body = label + "\n" + it.l + "\n\n— Transmis depuis FIDAL Apps";
+  window.location.href = "mailto:?subject=" + encodeURIComponent(it.t) +
+                         "&body=" + encodeURIComponent(body);
+}
+
+/* ---- réglages : alertes & sources ---- */
+function pRenderKw(){
+  const box = document.getElementById("kwList");
+  box.innerHTML = "";
+  if(!pKw.length){
+    const e = document.createElement("div");
+    e.className = "phint"; e.style.padding = "0 0 6px";
+    e.textContent = "Aucun mot-clé pour l'instant.";
+    box.appendChild(e);
+    return;
+  }
+  pKw.forEach(k=>{
+    const chip = document.createElement("span");
+    chip.className = "pkw";
+    const t = document.createElement("span"); t.textContent = k;
+    const x = document.createElement("button"); x.textContent = "×";
+    x.setAttribute("aria-label","Retirer "+k);
+    x.addEventListener("click", ()=>{
+      pKw = pKw.filter(v=>v!==k); pstore.set(PKEY.kw, pKw);
+      pRenderKw(); pRenderList(); pUpdateBadges();
+    });
+    chip.appendChild(t); chip.appendChild(x);
+    box.appendChild(chip);
+  });
+}
+function pRenderSources(){
+  const box = document.getElementById("srcList");
+  box.innerHTML = "";
+  const groups = {};
+  Object.values(pSrcMap).forEach(s=>{ (groups[s.gl||s.g] = groups[s.gl||s.g] || []).push(s); });
+  const keys = Object.keys(groups);
+  if(!keys.length){
+    const e = document.createElement("div");
+    e.className = "phint";
+    e.textContent = "Le catalogue se charge avec le premier relevé.";
+    box.appendChild(e);
+    return;
+  }
+  keys.forEach(gl=>{
+    const h = document.createElement("div");
+    h.className = "psec"; h.style.paddingTop = "16px"; h.textContent = gl;
+    box.appendChild(h);
+    groups[gl].forEach(s=>{
+      const row = document.createElement("div");
+      row.className = "psrcrow";
+      row.appendChild(plogoEl(s));
+      const txt = document.createElement("div");
+      txt.className = "psrctxt";
+      const nm = document.createElement("div");
+      nm.className = "psrcname"; nm.textContent = s.n;
+      const stt = document.createElement("div");
+      stt.className = "psrcstate";
+      const dot = document.createElement("span");
+      dot.className = "pdotst" + (s.st ? (s.st.ok ? " ok" : " ko") : "");
+      const lbl = document.createElement("span");
+      lbl.textContent = s.st ? (s.st.ok ? s.st.n + " articles" : "indisponible — " + (s.st.err||"")) : "non relevée";
+      stt.appendChild(dot); stt.appendChild(lbl);
+      txt.appendChild(nm); txt.appendChild(stt);
+      row.appendChild(txt);
+      const star = document.createElement("button");
+      star.className = "pstar" + (pFav.indexOf(s.id) !== -1 ? " on" : "");
+      star.setAttribute("aria-label","Suivre "+s.n);
+      star.innerHTML = ICON_STAR_P;
+      star.addEventListener("click", ()=>{
+        pFav = pFav.indexOf(s.id) !== -1 ? pFav.filter(x=>x!==s.id) : pFav.concat([s.id]);
+        pstore.set(PKEY.fav, pFav);
+        star.classList.toggle("on");
+        pRenderTabs(); pRenderList();
+      });
+      row.appendChild(star);
+      box.appendChild(row);
+    });
+  });
+}
+
+/* ---- ouverture / fermeture ---- */
+function presseOpen(){
+  if(pData) pApply(pData); else { pRenderTabs(); pRenderList(); pRenderInfo(); }
+  presseview.classList.add("open");
+  history.pushState({app:"presse"}, "", "#presse");
+  pLoad(false);
+}
+function presseClose(){
+  presseview.classList.remove("open");
+  presseprefs.classList.remove("open");
+}
+function prefsOpen(){
+  pRenderKw(); pRenderSources();
+  presseprefs.classList.add("open");
+  history.pushState({app:"presse-reglages"}, "", "#presse-reglages");
+}
+function prefsClose(){ presseprefs.classList.remove("open"); }
+
+function pressePop(){
+  const h = location.hash;
+  if(h === "#presse"){ prefsClose(); return; }
+  if(h === "#presse-reglages"){ return; }
+  presseClose();
+}
+
+document.getElementById("presseBack").addEventListener("click", ()=>history.back());
+document.getElementById("prefsBack").addEventListener("click", ()=>history.back());
+presseRefreshBtn.addEventListener("click", ()=>pLoad(true));
+document.getElementById("pressePrefsBtn").addEventListener("click", prefsOpen);
+document.getElementById("presseSearchBtn").addEventListener("click", ()=>{
+  const on = presseSearch.classList.toggle("show");
+  if(on) setTimeout(()=>presseQuery.focus(), 60);
+  else { presseQuery.value = ""; pQuery = ""; pRenderList(); }
+});
+document.getElementById("presseSearchClose").addEventListener("click", ()=>{
+  presseSearch.classList.remove("show");
+  presseQuery.value = ""; pQuery = ""; pRenderList();
+});
+presseQuery.addEventListener("input", ()=>{ pQuery = presseQuery.value; pRenderList(); });
+
+document.getElementById("kwAdd").addEventListener("click", pAddKw);
+document.getElementById("kwInput").addEventListener("keydown", e=>{
+  if(e.key === "Enter"){ e.preventDefault(); pAddKw(); }
+});
+function pAddKw(){
+  const el = document.getElementById("kwInput");
+  const v = el.value.trim();
+  if(!v) return;
+  if(!pKw.some(k=>pnorm(k) === pnorm(v))) pKw = pKw.concat([v]);
+  pstore.set(PKEY.kw, pKw);
+  el.value = "";
+  pRenderKw(); pRenderList(); pUpdateBadges();
+}
+document.getElementById("markAllRead").addEventListener("click", ()=>{
+  if(pData && pData.items) pData.items.forEach(pSetRead);
+  pRenderTabs(); pRenderList(); pUpdateBadges();
+});
+document.getElementById("clearRead").addEventListener("click", ()=>{
+  pRead = []; pstore.set(PKEY.read, pRead);
+  pRenderTabs(); pRenderList(); pUpdateBadges();
+});
+
+/* ---- amorçage : catalogue + pastille d'alerte dès l'accueil ---- */
+(function presseBoot(){
+  if(pData) pApply(pData);
+  const stale = !pData || !pData.at || (Date.now() - Date.parse(pData.at) > PMAXAGE);
+  if(stale){
+    setTimeout(()=>{
+      if(!presseview.classList.contains("open")) pLoad(true);
+    }, 2600);
+  }
+})();
+
 </script>
 </body>
 </html>
