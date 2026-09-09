@@ -1,0 +1,9 @@
+{
+  "name": "fidal-apps",
+  "private": true,
+  "type": "module",
+  "description": "Lanceur des outils numériques du cabinet FIDAL Notaires — site statique + fonctions serverless Vercel.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

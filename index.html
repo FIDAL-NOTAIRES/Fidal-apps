@@ -535,6 +535,121 @@
     box-shadow:0 3px 10px -2px rgba(0,0,0,.6);
   }
 
+
+  /* ================== PRESSE — dépôts du cabinet ================== */
+  #depotview{
+    position:absolute;inset:0;z-index:14;
+    background:radial-gradient(120% 80% at 50% -10%, var(--navy-soft) 0%, var(--navy) 42%, var(--navy-2) 100%);
+    display:flex;flex-direction:column;
+    transform:translateX(100%);
+    transition:transform .34s cubic-bezier(.32,.72,0,1);
+  }
+  #depotview.open{transform:none;}
+  #depotview .appbar{background:transparent;border-bottom:1px solid var(--line);}
+  .dep-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:4px 0 calc(30px + var(--safe-bottom));}
+
+  /* bouton flottant « déposer » */
+  #depotFab{
+    position:absolute;right:16px;bottom:calc(22px + var(--safe-bottom));z-index:20;
+    display:none;align-items:center;gap:8px;
+    background:var(--gold);color:var(--navy);border:0;border-radius:999px;
+    padding:13px 18px 13px 15px;font-family:inherit;font-size:13.5px;font-weight:700;
+    box-shadow:0 14px 30px -10px rgba(0,0,0,.75);cursor:pointer;
+  }
+  #depotFab.show{display:flex;}
+  #depotFab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;}
+
+  /* formulaire */
+  .dfield{padding:0 20px 14px;}
+  .dlabel{font-size:10.5px;letter-spacing:2.4px;font-weight:600;text-transform:uppercase;
+    color:rgba(255,255,255,.40);padding:18px 20px 8px;}
+  .dinput,.dselect,.dtext{
+    width:100%;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:13px;
+    color:#fff;font-family:inherit;font-size:13.5px;padding:13px 14px;outline:0;
+  }
+  .dtext{resize:none;line-height:1.5;min-height:76px;}
+  .dinput::placeholder,.dtext::placeholder{color:rgba(255,255,255,.30);}
+  .dselect{appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+  .dselect option{background:#12283F;color:#fff;}
+
+  .dmodes{display:flex;gap:8px;padding:0 20px 4px;}
+  .dmode{
+    flex:1;background:rgba(255,255,255,.06);border:1px solid var(--line);color:rgba(255,255,255,.72);
+    border-radius:13px;padding:12px 6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+  }
+  .dmode svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;}
+  .dmode.on{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+
+  .ddrop{
+    margin:0 20px;border:1.5px dashed rgba(255,255,255,.22);border-radius:16px;
+    padding:26px 18px;text-align:center;cursor:pointer;
+    font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--muted);line-height:1.6;
+    transition:background .15s,border-color .15s;
+  }
+  .ddrop.over{background:rgba(255,201,0,.10);border-color:var(--gold);color:var(--gold-soft);}
+  .ddrop b{display:block;font-family:var(--sans);font-style:normal;font-size:13px;
+    font-weight:600;color:#fff;margin-bottom:5px;}
+  .dprev{margin:12px 20px 0;position:relative;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);background:rgba(255,255,255,.04);display:none;}
+  .dprev.show{display:block;}
+  .dprev img{width:100%;display:block;max-height:300px;object-fit:contain;background:#0B1A2B;}
+  .dprev .dpdf{padding:22px 16px;display:flex;align-items:center;gap:12px;font-size:13px;}
+  .dprev .dpdf svg{width:26px;height:26px;flex:0 0 auto;fill:none;stroke:var(--gold);stroke-width:1.8;}
+  .dprev .dkill{
+    position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
+    background:rgba(9,21,37,.85);border:1px solid var(--line);color:#fff;cursor:pointer;
+    display:grid;place-items:center;font-size:15px;line-height:1;
+  }
+  .dweight{padding:7px 20px 0;font-size:10.5px;color:rgba(255,255,255,.36);}
+
+  .dsend{
+    margin:20px 20px 0;width:calc(100% - 40px);background:var(--gold);border:0;border-radius:14px;
+    color:var(--navy);font-family:inherit;font-size:14px;font-weight:700;padding:15px;cursor:pointer;
+  }
+  .dsend[disabled]{opacity:.45;cursor:default;}
+  .derr{margin:12px 20px 0;font-size:12px;line-height:1.5;color:var(--orange);}
+  .dok{margin:12px 20px 0;font-size:12px;line-height:1.5;color:#4ED08A;}
+
+  /* cartes de dépôt dans le fil */
+  .dcard{
+    position:relative;display:flex;gap:12px;width:100%;text-align:left;
+    background:none;border:0;border-bottom:1px solid var(--line);color:#fff;
+    font-family:inherit;cursor:pointer;padding:14px 16px 14px 18px;
+  }
+  .dcard:active{background:rgba(255,255,255,.05);}
+  .dthumb{
+    flex:0 0 auto;width:62px;height:62px;border-radius:12px;overflow:hidden;
+    background:rgba(255,255,255,.07);border:1px solid var(--line);display:grid;place-items:center;
+  }
+  .dthumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .dthumb svg{width:24px;height:24px;fill:none;stroke:var(--gold);stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round;}
+  .dbody{flex:1;min-width:0;}
+  .dwho{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+  .dava{
+    flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--gold);color:var(--navy);
+    font-size:8.5px;font-weight:700;display:grid;place-items:center;letter-spacing:-.2px;
+  }
+  .dname{font-size:9.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
+    color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dwhen{font-family:var(--serif);font-style:italic;font-size:10.5px;color:rgba(255,255,255,.40);
+    white-space:nowrap;}
+  .dtitle{margin:0;font-size:13.5px;font-weight:600;line-height:1.35;}
+  .dnote{margin:5px 0 0;font-family:var(--serif);font-style:italic;font-size:11.5px;line-height:1.5;
+    color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .dtrash{
+    position:absolute;right:6px;bottom:8px;background:none;border:0;cursor:pointer;
+    width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:rgba(255,255,255,.28);
+  }
+  .dtrash:active{background:rgba(255,255,255,.10);}
+  .dtrash svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;}
+
 </style>
 </head>
 <body>
@@ -670,6 +785,74 @@
       <button class="pwipe" id="clearRead">Réinitialiser l'historique de lecture</button>
     </div>
   </div>
+
+
+  <!-- PRESSE — écran de dépôt -->
+  <div id="depotview">
+    <div class="appbar">
+      <button id="depotBack" aria-label="Retour">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="title">DÉPOSER<small>Partager avec les associés</small></div>
+      <button aria-hidden="true" style="visibility:hidden"><svg viewBox="0 0 24 24"><path d="M5 5h14"/></svg></button>
+    </div>
+    <div class="dep-scroll">
+      <div class="dlabel">Déposé par</div>
+      <div class="dfield"><select class="dselect" id="depAuthor"></select></div>
+
+      <div class="dlabel">Nature du dépôt</div>
+      <div class="dmodes">
+        <button class="dmode on" data-mode="photo">
+          <svg viewBox="0 0 24 24"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.7l1.3-2h6l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5Z"/><circle cx="12" cy="13" r="3.6"/></svg>
+          Photo
+        </button>
+        <button class="dmode" data-mode="file">
+          <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg>
+          Fichier
+        </button>
+        <button class="dmode" data-mode="link">
+          <svg viewBox="0 0 24 24"><path d="M10 13a4 4 0 0 0 5.7.4l2.6-2.6a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 11a4 4 0 0 0-5.7-.4l-2.6 2.6a4 4 0 0 0 5.7 5.7l1.5-1.5"/></svg>
+          Lien
+        </button>
+      </div>
+
+      <div id="depPick">
+        <div class="ddrop" id="depDrop">
+          <b id="depDropTitle">Prendre une photo de l'article</b>
+          <span id="depDropHint">Appareil photo, ou image de la galerie</span>
+        </div>
+        <div class="dprev" id="depPrev">
+          <button class="dkill" id="depKill" aria-label="Retirer">×</button>
+          <div id="depPrevBody"></div>
+        </div>
+        <div class="dweight" id="depWeight"></div>
+        <input type="file" id="depFile" accept="image/*" capture="environment" hidden>
+        <input type="file" id="depFile2" accept="image/*,application/pdf" hidden>
+      </div>
+
+      <div id="depLinkWrap" hidden>
+        <div class="dfield" style="padding-top:0">
+          <input class="dinput" id="depLink" type="url" inputmode="url" autocomplete="off"
+                 placeholder="https://…  (collez l'adresse de l'article)">
+        </div>
+      </div>
+
+      <div class="dlabel">Titre</div>
+      <div class="dfield"><input class="dinput" id="depTitle" type="text" placeholder="Titre de l'article"></div>
+
+      <div class="dlabel">Pourquoi c'est intéressant</div>
+      <div class="dfield"><textarea class="dtext" id="depNote" placeholder="Un mot pour les associés — facultatif"></textarea></div>
+
+      <button class="dsend" id="depSend">Déposer</button>
+      <div class="derr" id="depErr" hidden></div>
+      <div class="dok" id="depOk" hidden></div>
+    </div>
+  </div>
+
+  <button id="depotFab">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Déposer
+  </button>
 
   <!-- MINI-LECTEUR -->
   <div id="mini">
@@ -1146,6 +1329,7 @@ const PKEY = {
 const PMAXAGE = 15*60*1000;          // fraîcheur du cache local
 const PTABS = [
   {k:"une",       l:"À la une"},
+  {k:"cabinet",   l:"Le cabinet"},
   {k:"fav",       l:"Suivis"},
   {k:"juridique", l:"Juridique"},
   {k:"eco",       l:"Éco & immo"},
@@ -1279,7 +1463,9 @@ function pVisible(){
 function pRenderTabs(){
   presseTabs.innerHTML = "";
   PTABS.forEach(t=>{
-    const unread = pItemsFor(t.k).filter(it=>!pIsRead(it)).length;
+    const unread = (t.k === "cabinet")
+      ? cabUnread()
+      : pItemsFor(t.k).filter(it=>!pIsRead(it)).length;
     const b = document.createElement("button");
     b.className = "ptab" + (t.k === pTab ? " on" : "");
     b.innerHTML = '<span>'+(t.k === "fav" ? "★ " : "")+t.l+'</span>' +
@@ -1293,6 +1479,8 @@ function pRenderTabs(){
 }
 
 function pRenderList(){
+  cabFab();
+  if(pTab === "cabinet"){ cabRender(); return; }
   presseList.innerHTML = "";
   if(pLoading && (!pData || !pData.items || !pData.items.length)){
     for(let i=0;i<7;i++){
@@ -1520,10 +1708,13 @@ function presseOpen(){
   presseview.classList.add("open");
   history.pushState({app:"presse"}, "", "#presse");
   pLoad(false);
+  cabLoad(false);
 }
 function presseClose(){
   presseview.classList.remove("open");
   presseprefs.classList.remove("open");
+  depotview.classList.remove("open");
+  depotFab.classList.remove("show");
 }
 function prefsOpen(){
   pRenderKw(); pRenderSources();
@@ -1534,8 +1725,8 @@ function prefsClose(){ presseprefs.classList.remove("open"); }
 
 function pressePop(){
   const h = location.hash;
-  if(h === "#presse"){ prefsClose(); return; }
-  if(h === "#presse-reglages"){ return; }
+  if(h === "#presse"){ prefsClose(); depotClose(); return; }
+  if(h === "#presse-reglages" || h === "#presse-depot"){ return; }
   presseClose();
 }
 
@@ -1575,6 +1766,398 @@ document.getElementById("clearRead").addEventListener("click", ()=>{
   pRead = []; pstore.set(PKEY.read, pRead);
   pRenderTabs(); pRenderList(); pUpdateBadges();
 });
+
+
+/* ==================================================================
+   PRESSE — dépôts du cabinet (onglet « Le cabinet »)
+   Stockage : Neon (fiches) + Vercel Blob (photos/PDF) via /api/depots
+   ================================================================== */
+const CKEY = { moi:"fidal.presse.moi", cache:"fidal.presse.depots" };
+const CAB_AUTHORS = [
+  "François-Xavier LAUNAIS", "Pierre HERTFELDER", "Jean-François DUMETZ",
+  "Nicolas DIRADOURIAN", "Nathalie DEBLECKER", "Nathalie JURCZAK",
+  "Stéphane DELAHAYE", "Laure BISSON", "Camille BARBOT",
+  "Charles GRUNBERG", "Mathieu POGNAN", "Ophélie FEVRE"
+];
+
+let cabItems   = pstore.get(CKEY.cache, []);
+let cabAuthors = CAB_AUTHORS.slice();
+let cabMoi     = pstore.get(CKEY.moi, "");
+let cabLoading = false, cabErr = "";
+
+const depotview = document.getElementById("depotview");
+const depotFab  = document.getElementById("depotFab");
+
+const ICON_PDF   = '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg>';
+const ICON_LINK  = '<svg viewBox="0 0 24 24"><path d="M10 13a4 4 0 0 0 5.7.4l2.6-2.6a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 11a4 4 0 0 0-5.7-.4l-2.6 2.6a4 4 0 0 0 5.7 5.7l1.5-1.5"/></svg>';
+const ICON_TRASH = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
+
+function initials(name){
+  const p = String(name||"").trim().split(/[\s-]+/).filter(Boolean);
+  const last = p[p.length-1] || "";
+  return ((p[0]||"")[0] || "") + (last[0] || "");
+}
+function cabReadKey(it){ return "depot:" + it.id; }
+function cabUnread(){ return cabItems.filter(it=>pRead.indexOf(cabReadKey(it)) === -1).length; }
+
+/* ---- chargement ---- */
+async function cabLoad(force){
+  if(cabLoading) return;
+  if(cabItems.length && !force){ cabRenderIfVisible(); }
+  cabLoading = true; cabErr = "";
+  cabRenderIfVisible();
+  try{
+    const r = await fetch("/api/depots?action=list&limit=80", {cache:"no-store"});
+    const j = await r.json();
+    if(!r.ok) throw new Error(j && j.error ? j.error : "HTTP " + r.status);
+    cabItems = Array.isArray(j.items) ? j.items : [];
+    if(Array.isArray(j.authors) && j.authors.length) cabAuthors = j.authors;
+    pstore.set(CKEY.cache, cabItems);
+  }catch(e){
+    cabErr = (e && e.message) || "service indisponible";
+  }finally{
+    cabLoading = false;
+    cabRenderIfVisible();
+    pRenderTabs();
+  }
+}
+function cabRenderIfVisible(){ if(pTab === "cabinet") cabRender(); }
+
+/* ---- rendu du fil ---- */
+function cabRender(){
+  presseList.innerHTML = "";
+  presseInfo.textContent = cabLoading ? "Chargement des dépôts…"
+    : cabErr ? "Dépôts indisponibles — " + cabErr
+    : cabItems.length + " dépôt" + (cabItems.length > 1 ? "s" : "") +
+      (cabMoi ? " · vous êtes " + cabMoi : "");
+
+  if(cabLoading && !cabItems.length){
+    for(let i=0;i<4;i++){
+      const s = document.createElement("div");
+      s.className = "pskel"; s.innerHTML = "<span></span><span></span><span></span>";
+      presseList.appendChild(s);
+    }
+    return;
+  }
+  if(!cabItems.length){
+    const e = document.createElement("div");
+    e.className = "pempty";
+    e.innerHTML = cabErr
+      ? "Impossible de joindre le service de dépôts.<br>Vérifiez que la base est bien connectée au projet."
+      : "Aucun article partagé pour l'instant.<br>Touchez « Déposer » pour en proposer un aux associés.";
+    presseList.appendChild(e);
+    return;
+  }
+
+  const q = pQuery.trim() ? pnorm(pQuery) : "";
+  const frag = document.createDocumentFragment();
+  cabItems.forEach(it=>{
+    if(q){
+      const hay = pnorm((it.title||"") + " " + (it.note||"") + " " + (it.author||""));
+      if(hay.indexOf(q) === -1) return;
+    }
+    const card = document.createElement("div");
+    card.className = "dcard";
+
+    const th = document.createElement("div");
+    th.className = "dthumb";
+    if(it.kind === "photo" || (it.mime||"").startsWith("image/")){
+      const im = document.createElement("img");
+      im.loading = "lazy"; im.alt = ""; im.src = it.file_url;
+      th.appendChild(im);
+    } else if((it.mime||"") === "application/pdf"){
+      th.innerHTML = ICON_PDF;
+    } else {
+      th.innerHTML = ICON_LINK;
+    }
+    card.appendChild(th);
+
+    const body = document.createElement("div");
+    body.className = "dbody";
+    const who = document.createElement("div");
+    who.className = "dwho";
+    const av = document.createElement("span");
+    av.className = "dava"; av.textContent = initials(it.author).toUpperCase();
+    const nm = document.createElement("span");
+    nm.className = "dname"; nm.textContent = it.author;
+    const wh = document.createElement("span");
+    wh.className = "dwhen"; wh.textContent = pago(it.created_at);
+    who.appendChild(av); who.appendChild(nm); who.appendChild(wh);
+    body.appendChild(who);
+
+    const h = document.createElement("h3");
+    h.className = "dtitle";
+    h.textContent = it.title || (it.link ? it.link.replace(/^https?:\/\//,"").slice(0,70) : "Sans titre");
+    body.appendChild(h);
+
+    if(it.note){
+      const p = document.createElement("p");
+      p.className = "dnote"; p.textContent = it.note;
+      body.appendChild(p);
+    }
+    card.appendChild(body);
+
+    if(cabMoi && it.author === cabMoi){
+      const del = document.createElement("button");
+      del.className = "dtrash"; del.setAttribute("aria-label","Retirer ce dépôt");
+      del.innerHTML = ICON_TRASH;
+      del.addEventListener("click", e=>{ e.stopPropagation(); cabDelete(it); });
+      card.appendChild(del);
+    }
+
+    card.addEventListener("click", ()=>{
+      const k = cabReadKey(it);
+      if(pRead.indexOf(k) === -1){ pRead.unshift(k); pstore.set(PKEY.read, pRead); pRenderTabs(); }
+      const target = it.link || it.file_url;
+      if(target) window.open(target, "_blank", "noopener");
+    });
+    frag.appendChild(card);
+  });
+  presseList.appendChild(frag);
+}
+
+async function cabDelete(it){
+  const del = await fetch("/api/depots?action=delete", {
+    method:"POST", headers:{"content-type":"application/json"},
+    body: JSON.stringify({id: it.id, author: cabMoi})
+  }).then(r=>r.json()).catch(()=>({error:"réseau"}));
+  if(del && del.deleted){
+    cabItems = cabItems.filter(x=>x.id !== it.id);
+    pstore.set(CKEY.cache, cabItems);
+    cabRender(); pRenderTabs();
+  }
+}
+
+/* ---- écran de dépôt ---- */
+let depMode = "photo", depPicked = null;   // {blob, mime, name, dataUrl}
+
+function depotOpen(){
+  const sel = document.getElementById("depAuthor");
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = ""; ph.textContent = "— choisir —";
+  sel.appendChild(ph);
+  cabAuthors.forEach(a=>{
+    const o = document.createElement("option");
+    o.value = a; o.textContent = a;
+    if(a === cabMoi) o.selected = true;
+    sel.appendChild(o);
+  });
+  depotview.classList.add("open");
+  depotFab.classList.remove("show");
+  history.pushState({app:"presse-depot"}, "", "#presse-depot");
+}
+function depotClose(){
+  depotview.classList.remove("open");
+  if(presseview.classList.contains("open") && pTab === "cabinet") depotFab.classList.add("show");
+}
+function cabFab(){
+  if(!depotFab) return;
+  const on = pTab === "cabinet"
+    && presseview.classList.contains("open")
+    && !depotview.classList.contains("open")
+    && !presseprefs.classList.contains("open");
+  depotFab.classList.toggle("show", on);
+}
+function depotReset(){
+  depPicked = null;
+  document.getElementById("depPrev").classList.remove("show");
+  document.getElementById("depPrevBody").innerHTML = "";
+  document.getElementById("depWeight").textContent = "";
+  document.getElementById("depTitle").value = "";
+  document.getElementById("depNote").value = "";
+  document.getElementById("depLink").value = "";
+  depErrShow(""); depOkShow("");
+}
+function depErrShow(m){
+  const el = document.getElementById("depErr");
+  el.textContent = m || ""; el.hidden = !m;
+}
+function depOkShow(m){
+  const el = document.getElementById("depOk");
+  el.textContent = m || ""; el.hidden = !m;
+}
+
+function depSetMode(m){
+  depMode = m;
+  document.querySelectorAll(".dmode").forEach(b=>b.classList.toggle("on", b.dataset.mode === m));
+  document.getElementById("depPick").hidden = (m === "link");
+  document.getElementById("depLinkWrap").hidden = (m !== "link");
+  const t = document.getElementById("depDropTitle"), hnt = document.getElementById("depDropHint");
+  if(m === "photo"){ t.textContent = "Prendre une photo de l'article"; hnt.textContent = "Appareil photo, ou image de la galerie"; }
+  else { t.textContent = "Choisir un fichier"; hnt.textContent = "Image ou PDF — glissez-le ici depuis le bureau"; }
+  depErrShow("");
+}
+
+/* compression : une photo de presse tient largement en 1600 px / JPEG 72 % */
+async function shrink(file){
+  if(file.type === "application/pdf") return { blob:file, mime:"application/pdf", name:file.name || "document.pdf" };
+  try{
+    const bmp = await createImageBitmap(file);
+    const max = 1600;
+    const sc = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const w = Math.round(bmp.width * sc), h = Math.round(bmp.height * sc);
+    const cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(bmp, 0, 0, w, h);
+    const blob = await new Promise(r=>cv.toBlob(r, "image/jpeg", 0.72));
+    if(!blob) throw new Error("canvas");
+    return { blob, mime:"image/jpeg", name:(file.name || "photo").replace(/\.[^.]+$/,"") + ".jpg" };
+  }catch(e){
+    return { blob:file, mime:file.type || "image/jpeg", name:file.name || "photo.jpg" };
+  }
+}
+function toDataUrl(blob){
+  return new Promise((res, rej)=>{
+    const fr = new FileReader();
+    fr.onload = ()=>res(fr.result);
+    fr.onerror = ()=>rej(new Error("lecture impossible"));
+    fr.readAsDataURL(blob);
+  });
+}
+function ko(n){ return n < 1024*1024 ? Math.max(1, Math.round(n/1024)) + " Ko" : (n/1048576).toFixed(1) + " Mo"; }
+
+async function depTake(file){
+  if(!file) return;
+  depErrShow("");
+  const out = await shrink(file);
+  if(out.blob.size > 4*1024*1024){
+    depErrShow("Fichier trop lourd (" + ko(out.blob.size) + "). Le maximum est de 4 Mo — pour un PDF, réduisez-le avant dépôt.");
+    return;
+  }
+  depPicked = out;
+  const prev = document.getElementById("depPrev"), body = document.getElementById("depPrevBody");
+  body.innerHTML = "";
+  if(out.mime === "application/pdf"){
+    body.innerHTML = '<div class="dpdf">' + ICON_PDF + '<span>' + out.name + '</span></div>';
+  }else{
+    const im = document.createElement("img");
+    im.src = URL.createObjectURL(out.blob);
+    body.appendChild(im);
+  }
+  prev.classList.add("show");
+  document.getElementById("depWeight").textContent =
+    "Prêt à déposer — " + ko(out.blob.size) + (file.size !== out.blob.size ? " (compressé depuis " + ko(file.size) + ")" : "");
+}
+
+async function depFetchMeta(){
+  const url = document.getElementById("depLink").value.trim();
+  if(!/^https?:\/\//i.test(url)) return;
+  const t = document.getElementById("depTitle");
+  if(t.value.trim()) return;
+  t.placeholder = "Lecture de la page…";
+  try{
+    const j = await fetch("/api/depots?action=meta&u=" + encodeURIComponent(url)).then(r=>r.json());
+    if(j && j.title && !t.value.trim()) t.value = j.title;
+    const n = document.getElementById("depNote");
+    if(j && j.note && !n.value.trim()) n.value = j.note;
+  }catch(e){}
+  t.placeholder = "Titre de l'article";
+}
+
+async function depSend(){
+  const btn = document.getElementById("depSend");
+  const author = document.getElementById("depAuthor").value;
+  const title = document.getElementById("depTitle").value.trim();
+  const note = document.getElementById("depNote").value.trim();
+  const link = document.getElementById("depLink").value.trim();
+
+  depErrShow(""); depOkShow("");
+  if(!author){ depErrShow("Choisissez d'abord votre nom."); return; }
+  if(depMode === "link" && !/^https?:\/\//i.test(link)){ depErrShow("Collez une adresse commençant par http:// ou https://"); return; }
+  if(depMode !== "link" && !depPicked){ depErrShow("Choisissez une photo ou un fichier."); return; }
+  if(depMode === "link" && !title){ depErrShow("Donnez un titre à l'article."); return; }
+
+  cabMoi = author; pstore.set(CKEY.moi, author);
+  btn.disabled = true; btn.textContent = "Dépôt en cours…";
+  try{
+    let fileUrl = "", mime = "";
+    if(depMode !== "link"){
+      const dataUrl = await toDataUrl(depPicked.blob);
+      const up = await fetch("/api/depots?action=upload", {
+        method:"POST", headers:{"content-type":"application/json"},
+        body: JSON.stringify({ name: depPicked.name, mime: depPicked.mime, data: dataUrl })
+      }).then(r=>r.json());
+      if(!up || up.error) throw new Error(up && up.error ? up.error : "envoi du fichier impossible");
+      fileUrl = up.url; mime = depPicked.mime;
+    }
+    const cr = await fetch("/api/depots?action=create", {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({
+        author, kind: depMode, title, note, link: depMode === "link" ? link : "",
+        fileUrl, mime
+      })
+    }).then(r=>r.json());
+    if(!cr || cr.error || !cr.item) throw new Error(cr && cr.error ? cr.error : "enregistrement impossible");
+
+    cabItems = [cr.item].concat(cabItems);
+    pstore.set(CKEY.cache, cabItems);
+    depOkShow("Dépôt enregistré. Les associés le verront dans « Le cabinet ».");
+    depotReset();
+    pTab = "cabinet"; pstore.set(PKEY.tab, pTab);
+    pRenderTabs(); cabRender();
+    setTimeout(()=>{ if(depotview.classList.contains("open")) history.back(); }, 900);
+  }catch(e){
+    depErrShow((e && e.message) || "dépôt impossible");
+  }finally{
+    btn.disabled = false; btn.textContent = "Déposer";
+  }
+}
+
+/* ---- branchements ---- */
+document.getElementById("depotBack").addEventListener("click", ()=>history.back());
+depotFab.addEventListener("click", depotOpen);
+document.querySelectorAll(".dmode").forEach(b=>{
+  b.addEventListener("click", ()=>depSetMode(b.dataset.mode));
+});
+document.getElementById("depDrop").addEventListener("click", ()=>{
+  document.getElementById(depMode === "photo" ? "depFile" : "depFile2").click();
+});
+["depFile","depFile2"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", e=>{
+    depTake(e.target.files && e.target.files[0]);
+    e.target.value = "";
+  });
+});
+const drop = document.getElementById("depDrop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev, e=>{
+  e.preventDefault(); drop.classList.add("over");
+}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev, e=>{
+  e.preventDefault(); drop.classList.remove("over");
+}));
+drop.addEventListener("drop", e=>{
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f) depTake(f);
+});
+document.getElementById("depKill").addEventListener("click", ()=>{
+  depPicked = null;
+  document.getElementById("depPrev").classList.remove("show");
+  document.getElementById("depPrevBody").innerHTML = "";
+  document.getElementById("depWeight").textContent = "";
+});
+document.getElementById("depLink").addEventListener("change", depFetchMeta);
+document.getElementById("depLink").addEventListener("blur", depFetchMeta);
+document.getElementById("depSend").addEventListener("click", depSend);
+document.getElementById("depAuthor").addEventListener("change", e=>{
+  if(e.target.value){ cabMoi = e.target.value; pstore.set(CKEY.moi, cabMoi); }
+});
+
+/* un lien partagé depuis une autre application arrive en ?share=<url> */
+(function shareTarget(){
+  const p = new URLSearchParams(location.search);
+  const shared = p.get("share") || p.get("url") || p.get("text") || "";
+  if(!/^https?:\/\//i.test(shared)) return;
+  history.replaceState(null, "", location.pathname);
+  presseOpen();
+  pTab = "cabinet"; pstore.set(PKEY.tab, pTab);
+  pRenderTabs();
+  depotOpen(); depSetMode("link");
+  document.getElementById("depLink").value = shared;
+  const t = p.get("title");
+  if(t) document.getElementById("depTitle").value = t;
+  else depFetchMeta();
+})();
 
 /* ---- amorçage : catalogue + pastille d'alerte dès l'accueil ---- */
 (function presseBoot(){
