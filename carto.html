@@ -248,12 +248,38 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
   font:inherit;font-size:12.5px;padding:6px 16px;border-radius:999px;cursor:pointer}
 .btn-visite[aria-pressed="true"]{background:var(--jaune-forme);color:#0B1A2B;font-weight:600;border-color:var(--jaune-forme)}
 
+/* ---------- version de poche : le pilotage en liste par famille ---------- */
+.liste-mobile{display:none}
+.fam-bloc{margin-bottom:18px}
+.fam-bloc h3{margin:0 0 7px;font-size:11.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--encre-faible);display:flex;align-items:center;gap:8px}
+.fam-bloc h3 i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.ligne-outil{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--trait);border-radius:10px;
+  margin-bottom:6px;background:rgba(8,21,37,.55);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ligne-outil:active{background:rgba(51,131,139,.18)}
+.ligne-outil.termine{opacity:.35}
+.ligne-outil .nom{flex:1;font-size:14px;min-width:0}
+.ligne-outil .nom small{display:block;font-size:11px;color:var(--encre-faible);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ligne-outil .jh{display:flex;gap:2px;flex:none}
+.ligne-outil .jh i{width:8px;height:14px;border-radius:2px;background:rgba(255,255,255,.09);display:block}
+.ligne-outil .reste{font-size:11px;color:var(--nuit);background:var(--cyan);border-radius:999px;padding:2px 8px;font-weight:600;min-width:24px;text-align:center;flex:none}
+.ligne-outil .reste.zero{background:rgba(255,255,255,.12);color:var(--encre-faible)}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:820px){
   .panneau{width:100%}
   .legende{display:none}
   .chiffres{gap:28px}
   .pres-tete h2{font-size:22px}
+  /* sur téléphone, le schéma cède la place à la liste ; la présentation reste réservée au grand écran */
+  #carte{display:none}
+  .liste-mobile{display:block;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:54px 14px 90px}
+  .outils-carte{top:10px;left:12px}
+  #btn-presentation{display:none}
+  .sous{display:none}
+  .barre{padding:12px 16px;gap:12px}
+  .btn-sugg{right:12px;bottom:12px}
+  .tiroir{width:100%}
+  .fermer{top:12px;right:14px;font-size:26px;padding:6px}
 }
 </style>
 </head>
@@ -277,6 +303,7 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
     </div>
     <svg id="carte" viewBox="-560 -535 1120 1070" preserveAspectRatio="xMidYMid meet" role="img"
          aria-label="Carte des outils et de leurs interactions"></svg>
+    <div class="liste-mobile" id="liste-mobile" aria-label="Liste des outils par famille"></div>
 
     <div class="legende" id="legende">
       <button type="button" aria-expanded="false"><span class="fleche">▶</span>Légende</button>
@@ -847,11 +874,40 @@ function dessinerCarte(){
     gNoeuds.appendChild(g);
   });
 
+  dessinerListeMobile();
+
   gNoeuds.querySelectorAll(".noeud").forEach(n=>{
     n.addEventListener("click",()=>ouvrir(n.dataset.id));
     n.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrir(n.dataset.id);} });
     n.addEventListener("mouseenter",()=>surligner(n.dataset.id));
     n.addEventListener("mouseleave",()=>{ if(!selection) surligner(null); });
+  });
+}
+
+/* La version de poche : sur téléphone, le schéma est illisible ; on montre la
+   même information en liste, famille par famille, et le toucher ouvre le
+   panneau de l'outil comme le clic sur le cercle. */
+function dessinerListeMobile(){
+  const boite=document.getElementById("liste-mobile"); if(!boite) return;
+  const rangOrdre={centre:0,hub:1,feuille:2};
+  boite.innerHTML = Object.entries(FAMILLES).map(([cle,f])=>{
+    const outils=OUTILS.filter(o=>o.famille===cle)
+      .sort((a,b)=>(rangOrdre[a.rang]-rangOrdre[b.rang])||a.nom.localeCompare(b.nom,"fr"));
+    if(!outils.length) return "";
+    return `<div class="fam-bloc"><h3><i style="background:${f.couleur}"></i>${f.nom}</h3>`
+      + outils.map(o=>{
+          const reste=pointsRestants(o);
+          return `<div class="ligne-outil ${grise(o)?"termine":""}" data-id="${o.id}" role="button" tabindex="0">
+            <div class="nom">${nomDe(o)}<small>${niv(o.niveau).nom}</small></div>
+            <div class="jh">${NIVEAUX.map(l=>`<i style="${l.n<=o.niveau?`background:${l.couleur}`:""}"></i>`).join("")}</div>
+            <div class="reste ${reste?"":"zero"}" title="points restant à travailler">${reste}</div>
+          </div>`;
+        }).join("")
+      + `</div>`;
+  }).join("");
+  boite.querySelectorAll(".ligne-outil").forEach(el=>{
+    el.addEventListener("click",()=>ouvrir(el.dataset.id));
+    el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrir(el.dataset.id);} });
   });
 }
 
