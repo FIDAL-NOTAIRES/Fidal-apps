@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARTO — écosystème des outils FIDAL Notaires</title>
+<style>
+/* ============================================================
+   CARTO v1.1 — charte FIDAL v2.2
+   Cinq familles par nature d'usage · guirlandes · suggestions arbitrées
+   Bleu nuit #0F2238 · bleu canard #33838B · orange #FF982D
+   Carmin #A01040 · cyan #6DD5DC · jaunes #FFE764 / #FFC900
+   ============================================================ */
+:root{
+  --nuit:#0F2238;
+  --nuit-profond:#081525;
+  --canard:#33838B;
+  --orange:#FF982D;
+  --carmin:#A01040;
+  --cyan:#6DD5DC;
+  --jaune-forme:#FFE764;
+  --jaune-texte:#FFC900;
+  --vert-pale:#7FD18A;
+  --vert-fonce:#1F7A4D;
+  --encre:#EAF2F7;
+  --encre-faible:#9FB3C4;
+  --trait:rgba(109,213,220,.18);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--nuit);color:var(--encre);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  overflow:hidden;
+}
+h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
+
+/* ---------- barre du haut ---------- */
+.barre{
+  position:relative;z-index:30;display:flex;align-items:center;gap:22px;
+  padding:14px 22px;border-bottom:1px solid var(--trait);
+  background:rgba(8,21,37,.72);backdrop-filter:blur(6px);
+}
+.marque{font-family:Georgia,serif;font-size:19px;letter-spacing:.2px}
+.marque span{color:var(--jaune-texte)}
+.sous{font-size:12.5px;color:var(--encre-faible);margin-left:-14px}
+.bascule{display:flex;margin-left:auto;border:1px solid var(--trait);border-radius:999px;overflow:hidden}
+.bascule button{
+  background:none;border:0;color:var(--encre-faible);font:inherit;font-size:13px;
+  padding:7px 18px;cursor:pointer;transition:background .18s,color .18s;
+}
+.bascule button[aria-pressed="true"]{background:var(--canard);color:#fff}
+.bascule button:focus-visible{outline:2px solid var(--jaune-forme);outline-offset:-2px}
+
+/* ---------- scène ---------- */
+.scene{position:relative;height:calc(100vh - 57px);overflow:hidden}
+.vue{position:absolute;inset:0;display:none}
+.vue.active{display:block}
+
+/* ---------- mode pilotage ---------- */
+#carte{width:100%;height:100%;cursor:grab}
+#carte.tire{cursor:grabbing}
+.noeud{cursor:pointer}
+.noeud circle.corps{transition:stroke-width .15s,opacity .2s}
+.noeud:hover circle.corps{stroke-width:3.5}
+.noeud text{font-size:11.5px;fill:var(--encre);pointer-events:none;text-anchor:middle}
+.noeud.centre text{font-size:14px;font-family:Georgia,serif}
+.noeud.hub text{font-size:12.5px}
+.noeud text.role{font-size:9.5px;fill:var(--encre-faible)}
+.estompe{opacity:.13}
+.lien{fill:none;stroke-linecap:round;transition:opacity .2s}
+.lien.existant{stroke:var(--cyan);stroke-width:1.6;opacity:.55}
+.lien.vive{opacity:1;stroke-width:2.6}
+.lien.terne{opacity:.10}
+.noeud.termine circle.corps,.noeud.termine text,.noeud.termine rect{opacity:.22}
+.guirlande{fill:#FFFFFF;pointer-events:none;filter:drop-shadow(0 0 3px rgba(109,213,220,.95)) drop-shadow(0 0 7px rgba(109,213,220,.5))}
+.corps-section li.fait{color:var(--encre-faible);text-decoration:line-through;opacity:.75}
+.corps-section li.fait::before{background:var(--vert-pale)}
+.etiq{display:inline-block;font-size:10px;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:middle;text-decoration:none}
+.etiq.fait{background:var(--vert-fonce);color:#fff}
+.etiq.attend{background:var(--orange);color:#0B1A2B}
+.etiq.abandonne{background:var(--carmin);color:#fff}
+
+/* ---------- suggestions arbitrées (bouton en bas à droite) ---------- */
+.btn-sugg{position:absolute;right:18px;bottom:16px;z-index:12;background:var(--orange);color:#0B1A2B;border:0;
+  font:inherit;font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;cursor:pointer;
+  box-shadow:0 6px 22px rgba(255,152,45,.35);display:flex;align-items:center;gap:8px}
+.btn-sugg:hover{background:#FFB05C}
+.btn-sugg span{background:#0B1A2B;color:var(--jaune-forme);border-radius:999px;padding:1px 8px;font-size:11px}
+.tiroir{position:absolute;top:0;right:0;width:540px;max-width:96vw;height:100%;z-index:26;
+  background:linear-gradient(180deg,#112A44 0%,#0C1F33 100%);border-left:1px solid var(--trait);
+  transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column}
+.tiroir.ouvert{transform:none}
+.tiroir .tete{padding:18px 22px 12px;border-bottom:1px solid var(--trait);position:relative}
+.tiroir h2{margin:0;font-size:22px;color:var(--jaune-forme)}
+.tiroir .srv{font-size:11px;color:var(--encre-faible);margin-top:4px}
+.tiroir .srv.ok{color:var(--vert-pale)} .tiroir .srv.ko{color:var(--orange)}
+.filtres-sugg{display:flex;gap:6px;padding:10px 22px;border-bottom:1px solid var(--trait);flex-wrap:wrap}
+.filtres-sugg button{background:none;border:1px solid var(--trait);color:var(--encre-faible);font:inherit;font-size:11.5px;padding:4px 11px;border-radius:999px;cursor:pointer}
+.filtres-sugg button[aria-pressed="true"]{background:var(--canard);border-color:var(--canard);color:#fff}
+.tiroir .liste{overflow-y:auto;flex:1;padding:4px 22px 30px}
+.sugg{padding:12px 0;border-bottom:1px solid var(--trait)}
+.sugg .qui{font-size:11.5px;color:var(--cyan);letter-spacing:.4px;margin-bottom:3px}
+.sugg .quoi{font-size:13.5px;line-height:1.5;color:#D3E1EC}
+.sugg .choix{display:flex;gap:6px;margin-top:8px}
+.sugg .choix button{background:none;border:1px solid var(--trait);color:var(--encre-faible);font:inherit;font-size:11.5px;padding:4px 11px;border-radius:999px;cursor:pointer;transition:background .15s}
+.sugg .choix button:hover{color:var(--encre)}
+.sugg .choix button.fait[aria-pressed="true"]{background:var(--vert-fonce);border-color:var(--vert-fonce);color:#fff}
+.sugg .choix button.attend[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#0B1A2B}
+.sugg .choix button.abandonne[aria-pressed="true"]{background:var(--carmin);border-color:var(--carmin);color:#fff}
+.sugg.abandonnee .quoi{text-decoration:line-through;opacity:.5}
+.sugg.faite .quoi{opacity:.65}
+
+/* ---------- choix du vocabulaire au lancement de la visite ---------- */
+.choix-public{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+  background:rgba(3,8,15,.72);backdrop-filter:blur(3px)}
+.choix-public.on{display:flex}
+.choix-public .boite{text-align:center;background:rgba(8,21,37,.92);border:1px solid rgba(109,213,220,.3);border-radius:14px;padding:28px 34px;max-width:440px}
+.choix-public h3{margin:0 0 6px;font-size:23px;color:var(--jaune-forme)}
+.choix-public p{margin:0 0 20px;color:#9FC4D6;font-size:13px;line-height:1.5}
+.choix-public .options{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.choix-public button{background:rgba(109,213,220,.12);border:1px solid rgba(109,213,220,.4);color:#EAF2F7;font:inherit;font-size:14px;padding:10px 22px;border-radius:999px;cursor:pointer}
+.choix-public button:hover{background:var(--jaune-forme);color:#0B1A2B;border-color:var(--jaune-forme)}
+.choix-public .annuler{background:none;border-color:transparent;color:var(--encre-faible);font-size:12px}
+.choix-public .annuler:hover{background:none;color:var(--encre);border-color:transparent}
+.legende .fam{display:flex;gap:9px;margin-top:6px;flex-wrap:wrap}
+.legende .fam span{display:flex;align-items:center;gap:5px;font-size:11px}
+
+.legende{
+  position:absolute;left:18px;bottom:16px;z-index:10;
+  font-size:12px;color:var(--encre-faible);line-height:1.9;
+  background:rgba(8,21,37,.80);border:1px solid var(--trait);border-radius:10px;
+  backdrop-filter:blur(4px);max-width:300px;
+}
+.legende > button{
+  display:flex;align-items:center;gap:9px;width:100%;
+  background:none;border:0;color:var(--encre-faible);font:inherit;font-size:12px;
+  padding:8px 14px;cursor:pointer;border-radius:10px;
+}
+.legende > button:hover{color:var(--encre)}
+.legende > button .fleche{color:var(--cyan);font-size:10px;transition:transform .2s}
+.legende.ouverte > button .fleche{transform:rotate(90deg)}
+.legende .contenu{display:none;padding:2px 15px 13px}
+.legende.ouverte .contenu{display:block}
+.legende b{font-weight:600;color:var(--encre);font-size:11px;display:block;margin-bottom:4px}
+.pastille{display:inline-block;width:22px;height:0;border-top:2px solid;vertical-align:middle;margin-right:7px}
+.pastille.sug{border-top-style:dashed}
+.echelle{display:flex;gap:9px;margin-top:9px;flex-wrap:wrap}
+.echelle span{display:flex;align-items:center;gap:5px;font-size:11px}
+.carre{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* ---------- panneau latéral ---------- */
+.panneau{
+  position:absolute;top:0;right:0;width:382px;max-width:92vw;height:100%;z-index:20;
+  background:linear-gradient(180deg,#112A44 0%,#0C1F33 100%);
+  border-left:1px solid var(--trait);
+  transform:translateX(100%);transition:transform .28s ease;
+  display:flex;flex-direction:column;
+}
+.panneau.ouvert{transform:none}
+.pan-tete{padding:20px 22px 16px;border-bottom:1px solid var(--trait)}
+.pan-tete .famille{font-size:11px;color:var(--cyan);letter-spacing:.6px}
+.pan-tete h2{margin:6px 0 4px;font-size:25px;color:var(--jaune-forme)}
+.pan-tete p{margin:8px 0 0;font-size:13px;line-height:1.55;color:var(--encre-faible)}
+.fermer{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--encre-faible);font-size:22px;cursor:pointer;line-height:1}
+.fermer:hover{color:var(--encre)}
+
+.jauge-ligne{display:flex;align-items:center;gap:13px;padding:16px 22px;border-bottom:1px solid var(--trait)}
+.jauge{display:flex;flex-direction:column-reverse;gap:3px}
+.jauge i{display:block;width:21px;height:8px;border-radius:2px;background:rgba(255,255,255,.09)}
+.jauge-texte b{display:block;font-size:14px;font-weight:600}
+.jauge-texte small{color:var(--encre-faible);font-size:11.5px}
+
+.sections{overflow-y:auto;flex:1;padding-bottom:30px}
+.section{border-bottom:1px solid var(--trait)}
+.section > button{
+  width:100%;display:flex;align-items:center;gap:11px;background:none;border:0;
+  color:var(--encre);font:inherit;font-size:13.5px;text-align:left;
+  padding:15px 22px;cursor:pointer;
+}
+.section > button:hover{background:rgba(109,213,220,.05)}
+.section > button:focus-visible{outline:2px solid var(--jaune-forme);outline-offset:-2px}
+.fleche{transition:transform .2s;color:var(--cyan);font-size:11px;width:10px}
+.section.ouverte .fleche{transform:rotate(90deg)}
+.compte{margin-left:auto;font-size:11px;color:var(--nuit);background:var(--cyan);
+  border-radius:999px;padding:2px 9px;font-weight:600}
+.corps-section{display:none;padding:0 22px 18px 43px}
+.section.ouverte .corps-section{display:block}
+.corps-section ul{margin:0;padding:0;list-style:none}
+.corps-section li{
+  font-size:13px;line-height:1.6;color:#D3E1EC;padding:7px 0 7px 16px;position:relative;
+}
+.corps-section li::before{content:"";position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%;background:var(--canard)}
+.section.pistes li::before{background:var(--orange)}
+.vide{font-size:12.5px;color:var(--encre-faible);font-style:italic;padding:4px 0 8px}
+.lien-ligne{font-size:12.5px;padding:6px 0;color:#D3E1EC}
+.lien-ligne em{font-style:normal;color:var(--orange)}
+.lien-ligne b{color:var(--cyan);font-weight:600}
+
+/* ---------- mode présentation ---------- */
+#ciel{display:block;width:100%;height:100%;background:radial-gradient(ellipse at 50% 45%,#0C2440 0%,#050E1C 62%,#03080F 100%)}
+.pres-tete{
+  position:absolute;top:34px;left:0;right:0;text-align:center;pointer-events:none;z-index:5;
+}
+.pres-tete h2{margin:0;font-size:31px;letter-spacing:.4px;color:#fff;text-shadow:0 0 28px rgba(109,213,220,.5)}
+.pres-tete p{margin:11px 0 0;font-size:12px;color:#8FB6CC;letter-spacing:3.6px}
+.pres-tete h2{text-shadow:0 0 34px rgba(109,213,220,.45),0 0 90px rgba(255,201,0,.16)}
+.chiffres{
+  position:absolute;bottom:32px;left:0;right:0;display:flex;justify-content:center;gap:58px;
+  pointer-events:none;z-index:5;
+}
+.chiffre{text-align:center}
+.chiffre b{display:block;font-family:Georgia,serif;font-size:38px;color:var(--jaune-forme);line-height:1}
+.chiffre span{font-size:11.5px;color:#8FB0C4;letter-spacing:1.4px}
+.sous-bascule{position:absolute;top:18px;right:22px;z-index:6;display:flex;
+  border:1px solid rgba(109,213,220,.3);border-radius:999px;overflow:hidden;
+  background:rgba(5,14,28,.6)}
+.sous-bascule button{background:none;border:0;color:#9FC4D6;font:inherit;font-size:12.5px;
+  padding:6px 16px;cursor:pointer}
+.sous-bascule button[aria-pressed="true"]{background:var(--jaune-forme);color:#0B1A2B;font-weight:600}
+.aide{position:absolute;bottom:14px;right:22px;z-index:6;font-size:11.5px;color:rgba(159,196,214,.55);letter-spacing:.3px}
+
+/* niveaux renseignés par Claude à partir des mémos et des dépôts : lecture seule */
+.jauge-note{margin-left:auto;align-self:flex-end;font-size:10.5px;color:var(--encre-faible);font-style:italic;max-width:110px;text-align:right;line-height:1.35}
+
+/* barre d'outils du schéma */
+.outils-carte{position:absolute;top:14px;left:18px;z-index:10;display:flex;gap:8px}
+.bouton-filtre{background:rgba(8,21,37,.8);border:1px solid var(--trait);color:var(--encre-faible);
+  font:inherit;font-size:12px;padding:6px 13px;border-radius:999px;cursor:pointer;
+  backdrop-filter:blur(4px);transition:background .18s,color .18s,border-color .18s}
+.bouton-filtre:hover{color:var(--encre)}
+.bouton-filtre[aria-pressed="true"]{background:var(--canard);border-color:var(--canard);color:#fff}
+
+/* bascule de public */
+.public{display:flex;border:1px solid var(--trait);border-radius:999px;overflow:hidden}
+.public button{background:none;border:0;color:var(--encre-faible);font:inherit;font-size:12px;
+  padding:6px 14px;cursor:pointer}
+.public button[aria-pressed="true"]{background:rgba(109,213,220,.16);color:var(--cyan)}
+
+/* récit de la visite guidée */
+.recit{position:absolute;left:50%;bottom:108px;transform:translateX(-50%);z-index:7;
+  max-width:min(660px,86vw);text-align:center;pointer-events:none;
+  opacity:0;transition:opacity .6s}
+.recit.vu{opacity:1}
+.recit b{display:block;font-family:Georgia,serif;font-size:21px;color:var(--jaune-forme);margin-bottom:7px}
+.recit span{font-size:14px;line-height:1.6;color:#CFE2EE;text-shadow:0 2px 12px rgba(0,8,18,.9)}
+.btn-visite{background:rgba(5,14,28,.6);border:1px solid rgba(109,213,220,.3);color:#CFE2EE;
+  font:inherit;font-size:12.5px;padding:6px 16px;border-radius:999px;cursor:pointer}
+.btn-visite[aria-pressed="true"]{background:var(--jaune-forme);color:#0B1A2B;font-weight:600;border-color:var(--jaune-forme)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:820px){
+  .panneau{width:100%}
+  .legende{display:none}
+  .chiffres{gap:28px}
+  .pres-tete h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<header class="barre">
+  <div class="marque">CARTO <span>·</span> écosystème des outils</div>
+  <div class="sous">FIDAL Notaires Paris</div>
+  <div class="bascule" role="group" aria-label="Mode d'affichage">
+    <button id="btn-pilotage" aria-pressed="true">Pilotage</button>
+    <button id="btn-presentation" aria-pressed="false">Présentation</button>
+  </div>
+</header>
+
+<div class="scene">
+
+  <!-- ============ MODE PILOTAGE ============ -->
+  <section class="vue active" id="vue-pilotage">
+    <div class="outils-carte">
+      <button class="bouton-filtre" id="f-reste" aria-pressed="false">Ce qui reste à faire</button>
+    </div>
+    <svg id="carte" viewBox="-560 -535 1120 1070" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Carte des outils et de leurs interactions"></svg>
+
+    <div class="legende" id="legende">
+      <button type="button" aria-expanded="false"><span class="fleche">▶</span>Légende</button>
+      <div class="contenu">
+        <b>Interactions</b>
+        <span class="pastille" style="border-color:var(--cyan)"></span>un outil en appelle un autre — les points lumineux vont de l'appelant vers l'appelé
+        <div class="echelle" id="echelle"></div>
+        <div class="fam" id="fam"></div>
+      </div>
+    </div>
+
+    <aside class="panneau" id="panneau" aria-live="polite">
+      <button class="fermer" id="fermer" aria-label="Fermer le détail">×</button>
+      <div class="pan-tete">
+        <div class="famille" id="p-famille"></div>
+        <h2 id="p-nom"></h2>
+        <p id="p-resume"></p>
+      </div>
+      <div class="jauge-ligne">
+        <div class="jauge" id="p-jauge"></div>
+        <div class="jauge-texte">
+          <b id="p-niveau"></b>
+          <small id="p-niveau-desc"></small>
+        </div>
+        <div class="jauge-note">niveau évalué d'après les mémos et les dépôts</div>
+      </div>
+      <div class="sections" id="p-sections"></div>
+    </aside>
+
+    <button class="btn-sugg" id="btn-sugg" aria-expanded="false">Suggestions <span id="sugg-nb">0</span></button>
+    <aside class="tiroir" id="tiroir" aria-label="Suggestions à arbitrer">
+      <div class="tete">
+        <button class="fermer" id="fermer-tiroir" aria-label="Fermer">×</button>
+        <h2>Suggestions</h2>
+        <div class="srv" id="sugg-srv">arbitrages conservés sur le serveur du cabinet</div>
+      </div>
+      <div class="filtres-sugg" id="filtres-sugg">
+        <button data-f="ouvertes" aria-pressed="true">À trancher</button>
+        <button data-f="fait" aria-pressed="false">On fait</button>
+        <button data-f="attend" aria-pressed="false">On attend</button>
+        <button data-f="abandonne" aria-pressed="false">Abandonnées</button>
+        <button data-f="toutes" aria-pressed="false">Toutes</button>
+      </div>
+      <div class="liste" id="sugg-liste"></div>
+    </aside>
+  </section>
+
+  <!-- ============ MODE PRÉSENTATION ============ -->
+  <section class="vue" id="vue-presentation">
+    <canvas id="ciel"></canvas>
+    <button class="btn-visite" id="btn-visite" aria-pressed="false"
+            style="position:absolute;top:18px;right:150px;z-index:6">Visite guidée</button>
+    <div class="recit" id="recit"></div>
+    <div class="sous-bascule" role="group" aria-label="Rendu">
+      <button id="btn-plat" aria-pressed="false">À plat</button>
+      <button id="btn-3d" aria-pressed="true">3D</button>
+    </div>
+    <div class="pres-tete">
+      <h2>L'atelier numérique de FIDAL Notaires</h2>
+      <p>UNE SUITE D'OUTILS CONSTRUITE AU CABINET</p>
+    </div>
+    <div class="chiffres" id="chiffres"></div>
+    <div class="aide">glisser pour tourner · molette pour approcher · cliquer une planète pour voir ses liens</div>
+    <div class="choix-public" id="choix-public">
+      <div class="boite">
+        <h3>Pour qui est cette visite ?</h3>
+        <p>Le vocabulaire des outils s'adapte au public. Le choix vaut pour toute la visite.</p>
+        <div class="options">
+          <button data-p="collaborateurs">Collaborateurs du cabinet</button>
+          <button data-p="avocats">Avocats FIDAL</button>
+        </div>
+        <div style="margin-top:12px"><button class="annuler" data-p="">Annuler</button></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ==================================================================
+   1. LES DONNÉES — tout se modifie ici, rien ailleurs.
+   niveau : 1 idée · 2 codé · 3 produit de la donnée
+            4 utilisable en l'état · 5 en production
+   famille : noyau · audit · documentaire · valorisation · relation
+   points  : chaîne = à faire ; {t:"…", fait:true} = réalisé (affiché barré)
+   ================================================================== */
+
+const NIVEAUX = [
+  {n:1, nom:"À l'état d'idée",        desc:"rien n'est encore écrit",              couleur:"#A01040"},
+  {n:2, nom:"Codé",                   desc:"une première version existe",          couleur:"#FF982D"},
+  {n:3, nom:"Produit de la donnée",   desc:"il sort un résultat exploitable",      couleur:"#FFC900"},
+  {n:4, nom:"Utilisable en l'état",   desc:"on peut s'en servir sur un dossier",   couleur:"#7FD18A"},
+  {n:5, nom:"En production",          desc:"déployé et utilisé au cabinet",        couleur:"#1F7A4D"}
+];
+
+/* Cinq familles, par nature d'usage — arbitrage du 18/09/2026 */
+const FAMILLES = {
+  noyau:        {nom:"Noyau — le lanceur",            couleur:"#FFE764"},
+  audit:        {nom:"Audit immobilier",              couleur:"#33838B"},
+  documentaire: {nom:"Production documentaire",       couleur:"#A01040"},
+  valorisation: {nom:"Valorisation et négociation",   couleur:"#FF982D"},
+  relation:     {nom:"Relation externe et confort",   couleur:"#6DD5DC"}
+};
+
+const OUTILS = [
+  // ---- centre ----
+  {id:"fidal-apps", nom:"FIDAL Apps", rang:"centre", famille:"noyau", niveau:5,
+   resume:"Le lanceur : dix tuiles, la barre du haut, le journal des éléments à voir et le bandeau d'incidents communs à toute la suite.",
+   points:["Journal des éléments à voir : page à construire, tri du plus ancien au plus récent",
+           "Bouton de la barre du haut portant le compteur unifié",
+           "Journal des incidents réservé à l'administrateur, à brancher sur la table Neon partagée"],
+   pistes:["Ajouter une tuile CARTO pour ouvrir cette carte depuis le lanceur",
+           "Faire remonter sur chaque tuile le niveau d'avancement affiché ici, pour que les collaborateurs sachent ce qui est stable"]},
+
+  // ---- concentrateurs ----
+  {id:"marteau", nom:"MARTEAU", rang:"hub", famille:"audit", niveau:3,
+   resume:"Audit de portefeuille immobilier. Le plus gros consommateur de la suite : il appelle sept outils de données et compile un rapport.",
+   points:["Plan de nommage à dix familles arrêté, à câbler complètement",
+           "Module Documents / Drive : dépôt des titres, inventaire, rangement et renommage",
+           "Bibliothèque de phrases pré-écrites rédigée pour les dix familles, à relier au moteur de rapport"],
+   pistes:["Appeler PAINT pour insérer les plans coloriés directement dans le rapport d'audit",
+           "Réutiliser l'écran d'attente commun plutôt qu'un chargement propre à l'outil"]},
+
+  {id:"fusion", nom:"FUSION", rang:"hub", famille:"audit", niveau:3,
+   resume:"Traitement par société : lecture de l'état hypothécaire en deux passes, regroupement par unité foncière, cinq blocs rédactionnels en sortie.",
+   points:["Onglet des points à trancher à finaliser",
+           "Arborescence Drive et plan de nommage à sept codes",
+           "Compilation Word / PDF et annexe des servitudes en recette"],
+   pistes:["Appeler TRENTE pour sécuriser la chaîne trentenaire des immeubles repris",
+           "Verser les unités foncières reconstituées vers MARTEAU quand les deux outils portent le même portefeuille"]},
+
+  {id:"countdown", nom:"COUNTDOWN", rang:"hub", famille:"valorisation", niveau:5,
+   resume:"Le concentrateur de calculateurs d'émoluments et de frais. Déployé et utilisé quotidiennement.",
+   points:["Mémo de référence en version 15 : tenir la table des barèmes à jour",
+           "Volet fiducie : barèmes A444-163-1 et A444-174"],
+   pistes:["Accueillir PRIX comme onzième calculateur plutôt que d'en faire un outil isolé",
+           "Exposer une petite fonction de calcul appelable par MARTEAU et FUSION, pour éviter de reprogrammer les frais dans chaque outil"]},
+
+  // ---- famille parcellaire ----
+  {id:"redpar", nom:"REDPAR", rang:"feuille", famille:"audit", niveau:5,
+   resume:"Données de parcelle et de bâti. En production, et socle de fait de toute la famille parcellaire.",
+   points:["Mémo v5 et addendum v4 à tenir à jour"],
+   pistes:["En faire la source unique de données parcellaires : tout outil qui a besoin d'une parcelle passe par lui"]},
+
+  {id:"urba", nom:"URBA", rang:"feuille", famille:"audit", niveau:4,
+   resume:"Consultation d'urbanisme par parcelle.",
+   points:["À documenter"],
+   pistes:["Mutualiser la saisie de parcelle avec REDPAR pour ne la demander qu'une fois"]},
+
+  {id:"xylo", nom:"XYLO", rang:"feuille", famille:"audit", niveau:4,
+   resume:"Arrêtés préfectoraux termites et mérule, par commune et par parcelle.",
+   points:["Veille des arrêtés : fraîcheur de la base à surveiller"],
+   pistes:["Brancher la revue de presse pour détecter la publication d'un nouvel arrêté"]},
+
+  {id:"trente", nom:"TRENTE", rang:"feuille", famille:"audit", niveau:3,
+   resume:"Analyse de l'origine de propriété sur trente ans. Tuile autonome.",
+   points:["OAuth encore en mode TEST — ne jamais publier l'application"],
+   pistes:["Passer l'authentification en production une fois la boîte de service arbitrée avec la DSI"]},
+
+  {id:"matrice", nom:"MATRICE", rang:"feuille", famille:"audit", niveau:4,
+   resume:"Demandes automatisées de relevés de matrice cadastrale aux services SDIF et PTGC.",
+   points:["Consentement administrateur à obtenir sur les permissions déléguées de l'inscription existante"],
+   pistes:["Basculer sur la boîte de service commune et la permission d'envoi unique, plutôt qu'une inscription par outil"]},
+
+  {id:"certif", nom:"CERTIF", rang:"feuille", famille:"audit", niveau:3,
+   resume:"Certificat d'urbanisme d'information (CUa) : demande et suivi.",
+   points:["À documenter"],
+   pistes:["Déclencher automatiquement la demande depuis un audit MARTEAU quand aucun certificat récent n'est trouvé"]},
+
+  {id:"risques", nom:"RISQUES", rang:"feuille", famille:"audit", niveau:4,
+   resume:"État des risques (ERP) : outil autonome, dépôt dédié et moteur PDF déjà bien avancé.",
+   points:["Addenda Drive à relire avant de rouvrir un arbitrage",
+           "Pastille de proposition de régénération sur la tuile"],
+   pistes:["Proposer la régénération d'un état de plus de six mois sans attendre que le collaborateur y pense"]},
+
+  {id:"paint", nom:"PAINT", rang:"feuille", famille:"documentaire", niveau:5,
+   resume:"Coloriage de plans cadastraux et génération de l'extrait officiel DGFiP.",
+   points:["À documenter"],
+   pistes:["Servir les plans coloriés à MARTEAU et à FUSION plutôt que d'être ouvert à la main"]},
+
+  // ---- famille rédaction ----
+  {id:"plume", nom:"PLUME", rang:"feuille", famille:"documentaire", niveau:4,
+   resume:"Rédaction de statuts de SCI.",
+   points:["Génération docx en version 8 : attention au chemin de la bibliothèque"],
+   pistes:["Enchaîner directement sur le certificat de dépôt de capital : les souscripteurs sont déjà saisis"]},
+
+  {id:"depot-capital", nom:"DÉPÔT DE CAPITAL", rang:"feuille", famille:"documentaire", niveau:2,
+   resume:"Certificat de dépôt de capital social : import des statuts, extraction des souscripteurs, génération du certificat.",
+   points:["Extraction des souscripteurs depuis les statuts importés",
+           "Modèle de certificat à figer"],
+   pistes:["Récupérer les souscripteurs depuis PLUME au lieu de relire un document"]},
+
+  {id:"apostille", nom:"APOSTILLE", rang:"feuille", famille:"documentaire", niveau:4,
+   resume:"Apostille et légalisation : le cabinet est autorité compétente depuis 2025.",
+   points:["À documenter"],
+   pistes:["Tenir un compteur des apostilles délivrées, utile en présentation"]},
+
+  // ---- famille calcul ----
+  {id:"delais-immo", nom:"DÉLAIS-IMMO", rang:"feuille", famille:"valorisation", niveau:5,
+   resume:"Calculateur de délais notariaux, en fichier unique.",
+   points:["Version 2.4 en service"],
+   pistes:["Renvoyer les dates calculées vers le dossier MARTEAU correspondant"]},
+
+  {id:"pret-particulier", nom:"PRÊT PARTICULIER", rang:"feuille", famille:"valorisation", niveau:4,
+   resume:"Simulateur de frais de prêt pour les particuliers.",
+   points:["À documenter"],
+   pistes:[]},
+
+  {id:"pret-pro", nom:"PRÊT PRO", rang:"feuille", famille:"valorisation", niveau:4,
+   resume:"Simulateur de frais de prêt professionnel.",
+   points:["À documenter"],
+   pistes:["Fusionner l'interface avec le simulateur particulier : un seul écran, un sélecteur"]},
+
+  {id:"prix", nom:"PRIX", rang:"feuille", famille:"valorisation", niveau:4,
+   resume:"Estimation de la valeur vénale et argumentaire de négociation : ventes enregistrées, quartier IRIS, posture investisseur, travaux chiffrés, enveloppe budgétaire.",
+   points:[{t:"Sources de données gratuites arrêtées : DVF, cadastre, ADEME, Géorisques, BD TOPO, carte des loyers",fait:true},
+           {t:"Lecture d'une capture d'annonce côté serveur",fait:true},
+           {t:"Barème des travaux et réglages sur le serveur du cabinet",fait:true},
+           "Essai depuis le téléphone : capture puis lecture dans l'outil",
+           "Postures défensive et agressive à finaliser au-dessus de la cascade"],
+   pistes:["Partir des données de parcelle de REDPAR pour préremplir la fiche du bien",
+           "Rendre la valeur obtenue disponible dans l'audit MARTEAU"]},
+
+  // ---- famille confort ----
+  {id:"attente", nom:"ATTENTE", rang:"feuille", famille:"relation", niveau:2,
+   resume:"Écran de chargement enrichi pour les générations de documents qui durent plusieurs minutes.",
+   points:["Contenus à afficher pendant l'attente"],
+   pistes:["En faire un composant commun appelé par tous les outils lents, au même titre que le bandeau d'alerte"]},
+
+  {id:"radio", nom:"RADIO", rang:"feuille", famille:"relation", niveau:5,
+   resume:"Lecteur radio intégré au lanceur, neuvième tuile.",
+   points:[],
+   pistes:[]},
+
+  {id:"presse", nom:"PRESSE", rang:"feuille", famille:"relation", niveau:5,
+   resume:"Revue de presse intégrée au lanceur, dixième tuile, avec sa fonction de collecte des flux.",
+   points:["Sélection des sources à affiner"],
+   pistes:["Signaler à XYLO la parution d'un arrêté termites ou mérule"]},
+
+  {id:"partage", nom:"PARTAGE AMIABLE", rang:"feuille", famille:"relation", niveau:5,
+   resume:"La cave du cabinet, en application installable.",
+   points:[],
+   pistes:[]},
+
+  {id:"consult", nom:"CONSULT", rang:"feuille", famille:"relation", niveau:4,
+   resume:"Tuile du lanceur.",
+   points:["À documenter"],
+   pistes:[]},
+
+  {id:"plateforme-avocats", nom:"PLATEFORME AVOCATS", rang:"feuille", famille:"relation", niveau:1,
+   resume:"Plateforme destinée aux avocats FIDAL pour les aider à prescrire les notaires. Co-construction avocats / notaires.",
+   points:["Périmètre encore ouvert"],
+   pistes:["Reprendre cette carte, en mode présentation, comme premier argument de démonstration"]}
+];
+
+/* Interactions. type : "existant" ou "suggere" */
+const LIENS = [
+  // le lanceur porte tout
+  ...["marteau","fusion","countdown","redpar","urba","trente","paint","plume","partage","consult","radio","presse","risques","apostille"]
+     .map(v=>({de:"fidal-apps",vers:v,type:"existant",quoi:"tuile du lanceur"})),
+
+  {de:"marteau",vers:"redpar",type:"existant",quoi:"données de parcelle et de bâti"},
+  {de:"marteau",vers:"urba",type:"existant",quoi:"consultation d'urbanisme"},
+  {de:"marteau",vers:"xylo",type:"existant",quoi:"arrêtés termites et mérule"},
+  {de:"marteau",vers:"trente",type:"existant",quoi:"origine trentenaire"},
+  {de:"marteau",vers:"matrice",type:"existant",quoi:"relevés de matrice"},
+  {de:"marteau",vers:"certif",type:"existant",quoi:"certificat d'urbanisme"},
+  {de:"marteau",vers:"risques",type:"existant",quoi:"état des risques"},
+
+  {de:"countdown",vers:"delais-immo",type:"existant",quoi:"calcul des délais"},
+  {de:"countdown",vers:"pret-particulier",type:"existant",quoi:"frais de prêt"},
+  {de:"countdown",vers:"pret-pro",type:"existant",quoi:"frais de prêt professionnel"},
+
+  {de:"fusion",vers:"paint",type:"existant",quoi:"plans cadastraux coloriés"},
+  {de:"fusion",vers:"matrice",type:"existant",quoi:"relevés de matrice"},
+  {de:"paint",vers:"redpar",type:"existant",quoi:"identification des parcelles"},
+  {de:"risques",vers:"redpar",type:"existant",quoi:"localisation de la parcelle"},
+
+  // propositions
+  {de:"marteau",vers:"paint",type:"suggere",quoi:"insérer les plans coloriés dans le rapport d'audit"},
+  {de:"marteau",vers:"attente",type:"suggere",quoi:"écran d'attente commun pendant la compilation"},
+  {de:"fusion",vers:"trente",type:"suggere",quoi:"sécuriser la chaîne trentenaire des immeubles repris"},
+  {de:"fusion",vers:"attente",type:"suggere",quoi:"écran d'attente commun"},
+  {de:"countdown",vers:"prix",type:"suggere",quoi:"accueillir PRIX comme calculateur"},
+  {de:"prix",vers:"redpar",type:"suggere",quoi:"préremplir la fiche du bien"},
+  {de:"prix",vers:"marteau",type:"suggere",quoi:"verser la valorisation dans l'audit"},
+  {de:"plume",vers:"depot-capital",type:"suggere",quoi:"reprendre les souscripteurs déjà saisis"},
+  {de:"presse",vers:"xylo",type:"suggere",quoi:"signaler la parution d'un arrêté"},
+  {de:"certif",vers:"marteau",type:"suggere",quoi:"relancer la demande quand le certificat est trop ancien"},
+  {de:"delais-immo",vers:"marteau",type:"suggere",quoi:"reporter les dates dans le dossier"},
+  {de:"risques",vers:"attente",type:"suggere",quoi:"écran d'attente commun"},
+  {de:"fidal-apps",vers:"attente",type:"suggere",quoi:"composant commun à toute la suite"},
+  {de:"fidal-apps",vers:"depot-capital",type:"suggere",quoi:"nouvelle tuile"},
+  {de:"fidal-apps",vers:"prix",type:"suggere",quoi:"nouvelle tuile"},
+  {de:"fidal-apps",vers:"matrice",type:"suggere",quoi:"remonter l'outil dans le lanceur"},
+  {de:"fidal-apps",vers:"plateforme-avocats",type:"suggere",quoi:"point d'entrée des avocats"}
+];
+
+/* Secteurs du schéma rayonnant : l'ordre des familles autour du centre */
+const SECTEURS = [
+  {hub:"marteau",   membres:["redpar","urba","xylo","trente","matrice","certif","risques"]},
+  {hub:"fusion",    membres:["paint","plume","depot-capital","apostille"]},
+  {hub:"countdown", membres:["delais-immo","pret-particulier","pret-pro","prix"]},
+  {hub:null,        membres:["attente","radio","presse","partage","consult","plateforme-avocats"]}
+];
+
+/* ==================================================================
+   2. OUTILLAGE COMMUN
+   ================================================================== */
+/* Nom « métier », affiché quand on s'adresse à des avocats */
+const METIER = {
+  "fidal-apps":"Le poste de travail",
+  "marteau":"Audit de portefeuille immobilier",
+  "fusion":"Analyse des titres et unités foncières",
+  "countdown":"Chiffrage des frais et émoluments",
+  "redpar":"Fiche parcellaire et bâti",
+  "urba":"Consultation d'urbanisme",
+  "xylo":"Termites et mérule",
+  "trente":"Origine de propriété trentenaire",
+  "matrice":"Relevés de matrice cadastrale",
+  "certif":"Certificat d'urbanisme",
+  "risques":"État des risques",
+  "paint":"Coloriage de plans cadastraux",
+  "plume":"Rédaction de statuts",
+  "depot-capital":"Certificat de dépôt de capital",
+  "apostille":"Apostille et légalisation",
+  "delais-immo":"Calcul des délais",
+  "pret-particulier":"Frais de prêt — particuliers",
+  "pret-pro":"Frais de prêt — professionnels",
+  "prix":"Estimation et négociation de valeur",
+  "attente":"Suivi des traitements longs",
+  "radio":"Écoute intégrée",
+  "presse":"Revue de presse",
+  "partage":"Cave du cabinet",
+  "consult":"Consultation",
+  "plateforme-avocats":"Portail des avocats"
+};
+let public_ = "collaborateurs";
+const nomDe = o => public_==="avocats" ? (METIER[o.id]||o.nom) : o.nom;
+
+const parId = Object.fromEntries(OUTILS.map(o=>[o.id,o]));
+
+/* Les niveaux d'avancement sont évalués par Claude d'après les mémos Drive et
+   les dépôts, et corrigés dans la constante OUTILS quand JFD les conteste :
+   rien ne se modifie à l'écran. */
+
+/* points à travailler : chaîne = à faire, objet {t, fait:true} = réalisé */
+const pointDe = p => typeof p==="string" ? {t:p,fait:false} : {t:p.t||"",fait:!!p.fait};
+const pointsRestants = o => (o.points||[]).map(pointDe).filter(p=>!p.fait).length;
+
+/* filtres du mode pilotage : sous filtre, les outils terminés restent
+   visibles en grisé, ils ne disparaissent pas du schéma */
+const filtres={reste:false};
+const visibleOutil = o => true;
+const termine = o => o.niveau>=4;
+const grise = o => filtres.reste && termine(o);
+
+/* Liens réellement construits, seuls dessinés : le schéma représente la
+   réalité de la construction, pas les projections. Les liens suggérés vivent
+   dans la liste des suggestions, en bas à droite. */
+const LIENS_REELS = LIENS.filter(l=>l.type==="existant");
+const LIENS_SUGGERES = LIENS.filter(l=>l.type==="suggere");
+const niv = n => NIVEAUX[n-1];
+const pos = {};                       // id -> {x,y,r}
+
+function jaugeHTML(niveau, largeur){
+  return NIVEAUX.map(l=>
+    `<i style="${l.n<=niveau?`background:${l.couleur}`:""};${largeur?`width:${largeur}px`:""}"></i>`
+  ).join("");
+}
+
+/* ==================================================================
+   2 bis. SUGGESTIONS ARBITRÉES — « on fait », « on attend », « on abandonne »
+   Les arbitrages sont conservés dans la base de réglages mutualisée du
+   cabinet (la même que PRIX), sous l'outil « carto ». Le schéma, lui, ne
+   change pas : il ne montre que ce qui est construit.
+   ================================================================== */
+const API_PARAMETRES = "https://prix-mu.vercel.app/api/parametres?outil=carto&cle=arbitrages";
+let arbitrages = {};
+try{ arbitrages = JSON.parse(localStorage.getItem("carto-arbitrages")||"{}"); }catch(e){ arbitrages = {}; }
+let filtreSugg = "ouvertes";
+let minuteurSauve = null;
+
+function toutesSuggestions(){
+  const l = [];
+  LIENS_SUGGERES.forEach(x=>l.push({
+    cle:"lien:"+x.de+">"+x.vers,
+    qui:(parId[x.de]?.nom||x.de)+" → "+(parId[x.vers]?.nom||x.vers),
+    quoi:x.quoi, outil:x.de
+  }));
+  OUTILS.forEach(o=>(o.pistes||[]).forEach((p,i)=>l.push({
+    cle:"piste:"+o.id+":"+i, qui:o.nom, quoi:p, outil:o.id
+  })));
+  return l;
+}
+const nbOuvertes = () => toutesSuggestions().filter(x=>!arbitrages[x.cle]).length;
+
+function marquerSrv(cl,txt){
+  const e=document.getElementById("sugg-srv"); if(!e) return;
+  e.className="srv "+cl; e.textContent=txt;
+}
+async function chargerArbitrages(){
+  try{
+    const r = await fetch(API_PARAMETRES,{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const d = await r.json();
+    if(d && d.valeur && typeof d.valeur==="object"){
+      arbitrages = d.valeur;
+      try{ localStorage.setItem("carto-arbitrages",JSON.stringify(arbitrages)); }catch(e){}
+    }
+    marquerSrv("ok","arbitrages conservés sur le serveur du cabinet"+(d&&d.maj?" — dernière mise à jour "+new Date(d.maj).toLocaleDateString("fr-FR"):""));
+  }catch(e){
+    marquerSrv("ko","serveur injoignable — arbitrages de ce poste uniquement");
+  }
+  rendreSuggestions(); majCompteurSugg();
+  if(selection) ouvrir(selection);
+}
+function sauverArbitrages(){
+  try{ localStorage.setItem("carto-arbitrages",JSON.stringify(arbitrages)); }catch(e){}
+  clearTimeout(minuteurSauve);
+  minuteurSauve = setTimeout(async ()=>{
+    try{
+      const r = await fetch(API_PARAMETRES,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify(arbitrages)});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      marquerSrv("ok","arbitrages enregistrés sur le serveur du cabinet");
+    }catch(e){
+      marquerSrv("ko","enregistrement serveur impossible — conservé sur ce poste");
+    }
+  }, 600);
+}
+function arbitrer(cle, etat){
+  if(arbitrages[cle]===etat) delete arbitrages[cle]; else arbitrages[cle]=etat;
+  sauverArbitrages(); rendreSuggestions(); majCompteurSugg();
+  if(selection) ouvrir(selection);
+}
+function majCompteurSugg(){
+  const e=document.getElementById("sugg-nb"); if(e) e.textContent = nbOuvertes();
+}
+function rendreSuggestions(){
+  const boite=document.getElementById("sugg-liste"); if(!boite) return;
+  const liste = toutesSuggestions().filter(x=>{
+    const e = arbitrages[x.cle]||"";
+    if(filtreSugg==="toutes") return true;
+    if(filtreSugg==="ouvertes") return !e;
+    return e===filtreSugg;
+  });
+  if(!liste.length){
+    boite.innerHTML = `<p class="vide" style="padding:18px 0">${filtreSugg==="ouvertes"?"Tout est tranché.":"Rien dans cette catégorie."}</p>`;
+    return;
+  }
+  const bouton=(x,e,lib)=>`<button type="button" class="${e}" data-cle="${x.cle}" data-e="${e}" aria-pressed="${arbitrages[x.cle]===e}">${lib}</button>`;
+  boite.innerHTML = liste.map(x=>`<div class="sugg ${arbitrages[x.cle]==="abandonne"?"abandonnee":""} ${arbitrages[x.cle]==="fait"?"faite":""}">
+      <div class="qui">${x.qui}</div>
+      <div class="quoi">${x.quoi}</div>
+      <div class="choix">${bouton(x,"fait","On fait")}${bouton(x,"attend","On attend")}${bouton(x,"abandonne","On abandonne")}</div>
+    </div>`).join("");
+  boite.querySelectorAll(".choix button").forEach(b=>b.addEventListener("click",()=>arbitrer(b.dataset.cle,b.dataset.e)));
+}
+
+/* ==================================================================
+   3. MODE PILOTAGE — schéma rayonnant en SVG
+   ================================================================== */
+const svg = document.getElementById("carte");
+const SVGNS = "http://www.w3.org/2000/svg";
+const R_HUB = 185, R_FEUILLE = 372;
+
+function calculerPositions(){
+  pos["fidal-apps"] = {x:0,y:0,r:50};
+  const nbSecteurs = SECTEURS.length;
+  SECTEURS.forEach((sec,i)=>{
+    const centreAngle = -Math.PI/2 + (i + .5) * (2*Math.PI/nbSecteurs);
+    const demiOuverture = (2*Math.PI/nbSecteurs) * .40;
+    if (sec.hub){
+      pos[sec.hub] = {
+        x: Math.cos(centreAngle)*R_HUB,
+        y: Math.sin(centreAngle)*R_HUB,
+        r: 34
+      };
+    }
+    const n = sec.membres.length;
+    sec.membres.forEach((id,j)=>{
+      const t = n===1 ? 0 : (j/(n-1))*2-1;           // -1 → +1
+      const a = centreAngle + t*demiOuverture;
+      const rayon = R_FEUILLE + (j%2 ? 46 : 0);      // deux profondeurs, pour aérer
+      pos[id] = {x:Math.cos(a)*rayon, y:Math.sin(a)*rayon, r:25};
+    });
+  });
+}
+
+function courbe(a,b){
+  const A=pos[a], B=pos[b];
+  if(!A||!B) return null;
+  const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+  const d=Math.hypot(B.x-A.x,B.y-A.y);
+  // léger galbe vers l'extérieur du centre
+  const nx=mx/(Math.hypot(mx,my)||1), ny=my/(Math.hypot(mx,my)||1);
+  const cx=mx+nx*d*0.10, cy=my+ny*d*0.10;
+  return `M${A.x.toFixed(1)},${A.y.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${B.x.toFixed(1)},${B.y.toFixed(1)}`;
+}
+
+function dessinerCarte(){
+  calculerPositions();
+  svg.innerHTML = "";
+
+  const gLiens = document.createElementNS(SVGNS,"g");
+  const gNoeuds = document.createElementNS(SVGNS,"g");
+  gAnim = document.createElementNS(SVGNS,"g");
+  svg.append(gLiens,gNoeuds,gAnim);
+
+  LIENS_REELS.forEach((l,i)=>{
+    const d = courbe(l.de,l.vers);
+    if(!d) return;
+    const p = document.createElementNS(SVGNS,"path");
+    p.setAttribute("d",d);
+    p.setAttribute("class","lien existant"+((grise(parId[l.de])||grise(parId[l.vers]))?" terne":""));
+    p.dataset.de=l.de; p.dataset.vers=l.vers; p.dataset.i=i;
+    gLiens.appendChild(p);
+  });
+
+  OUTILS.forEach(o=>{
+    const p = pos[o.id]; if(!p) return;
+    const g = document.createElementNS(SVGNS,"g");
+    g.setAttribute("class",`noeud ${o.rang}${grise(o)?" termine":""}`);
+    g.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+    g.setAttribute("tabindex","0");
+    g.setAttribute("role","button");
+    g.setAttribute("aria-label",`${o.nom} — ${niv(o.niveau).nom}`);
+    g.dataset.id = o.id;
+
+    const coul = FAMILLES[o.famille].couleur;
+    const c = document.createElementNS(SVGNS,"circle");
+    c.setAttribute("class","corps");
+    c.setAttribute("r",p.r);
+    c.setAttribute("fill", o.rang==="feuille" ? "rgba(255,255,255,.04)" : coul+"22");
+    c.setAttribute("stroke",coul);
+    c.setAttribute("stroke-width", o.rang==="centre"?3:2);
+    g.appendChild(c);
+
+    // jauge batterie, collée à droite du cercle
+    const gj = document.createElementNS(SVGNS,"g");
+    gj.setAttribute("transform",`translate(${p.r+7},${-13})`);
+    NIVEAUX.forEach(l=>{
+      const r = document.createElementNS(SVGNS,"rect");
+      r.setAttribute("x",0);
+      r.setAttribute("y",(5-l.n)*5.4);
+      r.setAttribute("width",6); r.setAttribute("height",4.2); r.setAttribute("rx",1);
+      r.setAttribute("fill", l.n<=o.niveau ? l.couleur : "rgba(255,255,255,.10)");
+      gj.appendChild(r);
+    });
+    g.appendChild(gj);
+
+    // libellé
+    const etiq = nomDe(o);
+    const mots = etiq.split(" ");
+    let lignes=[etiq];
+    if(etiq.length>13){
+      lignes=[]; let cur="";
+      mots.forEach(m=>{ if((cur+" "+m).trim().length>15){lignes.push(cur.trim());cur=m;} else cur+=" "+m; });
+      if(cur.trim()) lignes.push(cur.trim());
+    }
+    lignes.forEach((ligne,k)=>{
+      const t = document.createElementNS(SVGNS,"text");
+      t.setAttribute("y", p.r + 17 + k*13);
+      t.textContent = ligne;
+      g.appendChild(t);
+    });
+
+    gNoeuds.appendChild(g);
+  });
+
+  gNoeuds.querySelectorAll(".noeud").forEach(n=>{
+    n.addEventListener("click",()=>ouvrir(n.dataset.id));
+    n.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrir(n.dataset.id);} });
+    n.addEventListener("mouseenter",()=>surligner(n.dataset.id));
+    n.addEventListener("mouseleave",()=>{ if(!selection) surligner(null); });
+  });
+}
+
+let selection = null;
+let gAnim = null;
+let nGuir = 0;
+
+/* La guirlande : de petits triangles lumineux parcourent le lien de l'outil
+   appelant vers l'outil appelé. Le sens se lit par le mouvement. En mode
+   pilotage, elle ne s'allume qu'au survol, pour un écran calme au quotidien. */
+function guirlande(chemin){
+  const g = document.createElementNS(SVGNS,"g");
+  const id = "trace"+(++nGuir);
+  const rail = document.createElementNS(SVGNS,"path");
+  rail.setAttribute("id",id); rail.setAttribute("d",chemin.getAttribute("d"));
+  rail.setAttribute("fill","none"); rail.setAttribute("stroke","none");
+  g.appendChild(rail);
+  let L = 300; try{ L = chemin.getTotalLength(); }catch(e){}
+  const dur = Math.max(1.6, L/130);
+  const nb = L>260 ? 3 : 2;
+  for(let k=0;k<nb;k++){
+    const tri = document.createElementNS(SVGNS,"polygon");
+    tri.setAttribute("points","-5,-3.2 4.5,0 -5,3.2");
+    tri.setAttribute("class","guirlande");
+    const am = document.createElementNS(SVGNS,"animateMotion");
+    am.setAttribute("dur",dur.toFixed(2)+"s");
+    am.setAttribute("repeatCount","indefinite");
+    am.setAttribute("rotate","auto");
+    am.setAttribute("begin",(-(k*dur/nb)).toFixed(2)+"s");
+    const mp = document.createElementNS(SVGNS,"mpath");
+    mp.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href","#"+id);
+    mp.setAttribute("href","#"+id);
+    am.appendChild(mp); tri.appendChild(am); g.appendChild(tri);
+  }
+  return g;
+}
+
+function surligner(id){
+  const noeuds = svg.querySelectorAll(".noeud");
+  const liens = svg.querySelectorAll(".lien");
+  if(gAnim) gAnim.innerHTML = "";
+  if(!id){
+    noeuds.forEach(n=>n.classList.remove("estompe"));
+    liens.forEach(l=>{l.classList.remove("estompe");l.classList.remove("vive");});
+    return;
+  }
+  const voisins = new Set([id]);
+  LIENS_REELS.forEach(l=>{
+    if(l.de===id) voisins.add(l.vers);
+    if(l.vers===id) voisins.add(l.de);
+  });
+  noeuds.forEach(n=>n.classList.toggle("estompe",!voisins.has(n.dataset.id)));
+  liens.forEach(l=>{
+    const concerne = l.dataset.de===id || l.dataset.vers===id;
+    l.classList.toggle("vive",concerne);
+    l.classList.toggle("estompe",!concerne);
+    if(concerne && gAnim && !doux) gAnim.appendChild(guirlande(l));
+  });
+}
+
+/* ---------- panneau latéral ---------- */
+const panneau = document.getElementById("panneau");
+
+function sectionHTML(titre, contenu, nb, classe){
+  return `<div class="section ${classe||""}">
+      <button type="button" aria-expanded="false">
+        <span class="fleche">▶</span><span>${titre}</span>
+        ${nb!==null?`<span class="compte">${nb}</span>`:""}
+      </button>
+      <div class="corps-section">${contenu}</div>
+    </div>`;
+}
+
+function ouvrir(id){
+  const o = parId[id]; if(!o) return;
+  selection = id;
+  surligner(id);
+
+  document.getElementById("p-famille").textContent = FAMILLES[o.famille].nom;
+  document.getElementById("p-nom").textContent = nomDe(o);
+  document.getElementById("p-resume").textContent = o.resume;
+  document.getElementById("p-jauge").innerHTML = jaugeHTML(o.niveau);
+  document.getElementById("p-niveau").textContent = niv(o.niveau).nom;
+  document.getElementById("p-niveau").style.color = niv(o.niveau).couleur;
+  document.getElementById("p-niveau-desc").textContent = niv(o.niveau).desc;
+
+  /* les points réalisés restent affichés, barrés ; les autres sont à faire */
+  const listePts = (o.points||[]).map(pointDe);
+  const pts = listePts.length
+    ? `<ul>${listePts.map(p=>`<li class="${p.fait?"fait":""}">${p.t}</li>`).join("")}</ul>`
+    : `<p class="vide">Rien de relevé pour l'instant.</p>`;
+  /* les pistes portent l'arbitrage rendu dans la liste des suggestions */
+  const ETIQ = {fait:"on fait", attend:"on attend", abandonne:"abandonnée"};
+  const pis = o.pistes && o.pistes.length
+    ? `<ul>${o.pistes.map((p,i)=>{
+        const e = arbitrages["piste:"+o.id+":"+i];
+        return `<li${e==="abandonne"?' class="fait"':''}>${p}${e?`<span class="etiq ${e}">${ETIQ[e]}</span>`:""}</li>`;
+      }).join("")}</ul>`
+    : `<p class="vide">Aucune proposition à ce stade.</p>`;
+
+  const entrants = LIENS_REELS.filter(l=>l.vers===id);
+  const sortants = LIENS_REELS.filter(l=>l.de===id);
+  const ligne = (l,sens)=>`<div class="lien-ligne"><b>${sens==="sort"?parId[l.vers]?.nom:parId[l.de]?.nom}</b> — ${l.quoi}</div>`;
+  const liensHTML =
+    (sortants.length?`<div class="vide">Il appelle</div>${sortants.map(l=>ligne(l,"sort")).join("")}`:"") +
+    (entrants.length?`<div class="vide" style="margin-top:10px">Il est appelé par</div>${entrants.map(l=>ligne(l,"entre")).join("")}`:"") ||
+    `<p class="vide">Aucune interaction construite à ce jour.</p>`;
+
+  document.getElementById("p-sections").innerHTML =
+      sectionHTML("Points à travailler", pts, pointsRestants(o), "")
+    + sectionHTML("Pistes proposées", pis, (o.pistes||[]).length, "pistes")
+    + sectionHTML("Interactions", liensHTML, entrants.length+sortants.length, "");
+
+  document.querySelectorAll("#p-sections .section > button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const s = b.parentElement;
+      const ouvert = s.classList.toggle("ouverte");
+      b.setAttribute("aria-expanded", ouvert?"true":"false");
+    });
+  });
+
+  panneau.classList.add("ouvert");
+}
+
+function fermer(){
+  panneau.classList.remove("ouvert");
+  selection = null;
+  surligner(null);
+}
+document.getElementById("fermer").addEventListener("click",fermer);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") fermer(); });
+
+/* légende des niveaux */
+document.getElementById("echelle").innerHTML =
+  `<b style="width:100%">Avancement</b>` +
+  NIVEAUX.map(l=>`<span><i class="carre" style="background:${l.couleur}"></i>${l.nom.toLowerCase()}</span>`).join("");
+document.getElementById("fam").innerHTML =
+  `<b style="width:100%;margin-top:8px">Familles</b>` +
+  Object.values(FAMILLES).map(f=>`<span><i class="carre" style="background:${f.couleur};border-radius:50%"></i>${f.nom}</span>`).join("");
+
+dessinerCarte();
+
+/* légende repliable */
+(function(){
+  const l=document.getElementById("legende"), b=l.querySelector("button");
+  b.addEventListener("click",()=>{
+    const o=l.classList.toggle("ouverte");
+    b.setAttribute("aria-expanded",o?"true":"false");
+  });
+})();
+
+/* déplacement et zoom du schéma */
+(function(){
+  const VB0={x:-560,y:-535,w:1120,h:1070};
+  let vb={...VB0}, tire=false, ox=0, oy=0;
+  const maj=()=>svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  svg.addEventListener("pointerdown",e=>{
+    if(e.target.closest(".noeud")) return;
+    tire=true; ox=e.clientX; oy=e.clientY;
+    svg.classList.add("tire"); svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener("pointermove",e=>{
+    if(!tire) return;
+    const k=vb.w/svg.clientWidth;
+    vb.x-=(e.clientX-ox)*k; vb.y-=(e.clientY-oy)*k;
+    ox=e.clientX; oy=e.clientY; maj();
+  });
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>
+    svg.addEventListener(ev,()=>{tire=false;svg.classList.remove("tire");}));
+  svg.addEventListener("wheel",e=>{
+    e.preventDefault();
+    const f=e.deltaY>0?1.09:0.92;
+    const nw=Math.min(2600,Math.max(420,vb.w*f)), nh=nw*(VB0.h/VB0.w);
+    vb.x+=(vb.w-nw)/2; vb.y+=(vb.h-nh)/2; vb.w=nw; vb.h=nh; maj();
+  },{passive:false});
+  svg.addEventListener("dblclick",()=>{vb={...VB0};maj();});
+})();
+
+/* ==================================================================
+   4. MODE PRÉSENTATION — le système solaire
+   ================================================================== */
+const cv = document.getElementById("ciel");
+const ctx = cv.getContext("2d");
+let W=0,H=0,DPR=1;
+const doux = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- petites fonctions de couleur ---------- */
+function rvb(hex){const h=hex.replace("#","");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function mel(hex,vers,k){const a=rvb(hex),b=rvb(vers);return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join(",")})`;}
+function opa2(c,a){const m=c.match(/\d+/g);return `rgba(${m[0]},${m[1]},${m[2]},${a})`;}
+function opa(hex,a){const c=rvb(hex);return `rgba(${c[0]},${c[1]},${c[2]},${a})`;}
+const borne=(v,a,b)=>v<a?a:v>b?b:v;
+
+/* ---------- les corps ---------- */
+const R_ORB_HUB = 345;
+const corps = [];
+function construireCorps(){
+  corps.length = 0;
+  SECTEURS.forEach((sec,i)=>{
+    const base = (i/SECTEURS.length)*Math.PI*2;
+    if(sec.hub){
+      const o = parId[sec.hub];
+      corps.push({id:o.id,nom:o.nom,couleur:FAMILLES[o.famille].couleur,niveau:o.niveau,
+        taille:19, orbite:R_ORB_HUB, vitesse:0.052+i*0.005, phase:base,
+        incl:0.05+i*0.022, node:base*0.6, parent:null, anneau:(sec.hub==="marteau")});
+    }
+    sec.membres.forEach((id,j)=>{
+      const o = parId[id]; if(!o) return;
+      corps.push({id:o.id,nom:o.nom,couleur:FAMILLES[o.famille].couleur,niveau:o.niveau,
+        taille: sec.hub ? 12.5 : 14,
+        orbite: sec.hub ? 100+(j%4)*38 : R_ORB_HUB+185+(j%3)*62,
+        vitesse: sec.hub ? 0.155+j*0.021 : 0.018+j*0.0019,
+        phase: sec.hub ? (j/sec.membres.length)*Math.PI*2
+                       : (j/sec.membres.length)*Math.PI*2 + 0.4,
+        incl: sec.hub ? 0.20+(j%4)*0.09 : 0.04+(j%3)*0.03,
+        node: sec.hub ? j*1.7 : j*0.9,
+        parent: sec.hub || null, anneau:false});
+    });
+  });
+  /* Une même vitesse angulaire au sein d'un groupe : les planètes d'une orbite
+     gardent ainsi leur écartement au lieu de finir agglutinées. La vitesse
+     retenue est la moyenne de celles programmées, donc le rythme global ne
+     change pas. */
+  const groupes = {};
+  corps.forEach(c=>{ const g=c.parent||(c.orbite===R_ORB_HUB?"__hubs":"__exterieur"); (groupes[g]=groupes[g]||[]).push(c); });
+  Object.values(groupes).forEach(gr=>{
+    const moy = gr.reduce((t,c)=>t+c.vitesse,0)/gr.length;
+    gr.forEach((c,i)=>{ c.vitesse = moy; c.phase = (i/gr.length)*Math.PI*2 + (c.parent?0:0.35); });
+  });
+  corps.forEach((c,k)=>{
+    c.ordre=k;
+    // graine déterministe tirée de l'identifiant
+    let h=0; for(const ch of c.id) h=(h*31+ch.charCodeAt(0))>>>0;
+    const al=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296;};
+    c.rotVit=0.09+al()*0.16;
+    c.rotPhase=al()*6.283;
+    c.taches=Array.from({length:5+Math.floor(al()*4)},()=>({
+      lon:al()*6.283,
+      lat:(al()-0.5)*2.0,
+      r:0.22+al()*0.30,
+      clair:al()<0.45,
+      f:0.10+al()*0.16
+    }));
+  });
+}
+construireCorps();
+
+function pointOrbite(r,a,incl,node){
+  const x=Math.cos(a)*r, z=Math.sin(a)*r*Math.cos(incl), y=Math.sin(a)*r*Math.sin(incl);
+  const cn=Math.cos(node), sn=Math.sin(node);
+  return {x:x*cn+z*sn, y, z:-x*sn+z*cn};
+}
+
+/* ---------- caméra ---------- */
+let tilt=1.02, tiltCible=1.02, azimut=0, zoom=1, zoomCible=1, t0=performance.now(), glisse=false;
+const foyer={x:0,y:0};
+const visite={actif:false,etape:0,cible:null,minuteur:null};
+
+function projeter(p){
+  const ca=Math.cos(azimut), sa=Math.sin(azimut);
+  const x=p.x*ca+p.z*sa, z=-p.x*sa+p.z*ca;
+  const ct=Math.cos(tilt), st=Math.sin(tilt);
+  const sy=z*ct-p.y*st, prof=z*st+p.y*ct;
+  const f=1600, e=f/(f-prof);
+  return {x:x*e, y:sy*e, e, prof};
+}
+
+/* ---------- le ciel ---------- */
+const couches=[{n:150,p:0.10,r:[0.2,0.8],a:[0.18,0.42]},
+               {n:90, p:0.26,r:[0.5,1.3],a:[0.34,0.7]},
+               {n:26, p:0.48,r:[1.0,1.9],a:[0.6,1.0]}];
+const etoiles=[];
+couches.forEach((c,ci)=>{
+  for(let i=0;i<c.n;i++){
+    const u=Math.random(), v=Math.random();
+    // léger regroupement en bande, façon voie lactée
+    const bande = Math.random()<0.4;
+    etoiles.push({
+      x:u, y: bande ? borne(0.5+(u-0.5)*0.55+(Math.random()-0.5)*0.22,0,1) : v,
+      r:c.r[0]+Math.random()*(c.r[1]-c.r[0]),
+      a:c.a[0]+Math.random()*(c.a[1]-c.a[0]),
+      v:0.3+Math.random(), par:c.p, eclat: ci===2 && Math.random()<0.45
+    });
+  }
+});
+
+function redimensionner(){
+  DPR = Math.min(window.devicePixelRatio||1,2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize",redimensionner);
+
+function dessinerFond(t){
+  ctx.clearRect(0,0,W,H);
+  // nébuleuses
+  const neb=[[0.24,0.30,Math.max(W,H)*0.55,"51,131,139",0.16],
+             [0.80,0.68,Math.max(W,H)*0.50,"160,16,64",0.11],
+             [0.58,0.18,Math.max(W,H)*0.38,"109,213,220",0.08]];
+  neb.forEach(([nx,ny,r,c,a])=>{
+    const g=ctx.createRadialGradient(nx*W,ny*H,0,nx*W,ny*H,r);
+    g.addColorStop(0,`rgba(${c},${a})`); g.addColorStop(1,`rgba(${c},0)`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  });
+  // étoiles avec parallaxe
+  for(const e of etoiles){
+    const dx=(-azimut*e.par*260)%W;
+    let x=(e.x*W+dx)%W; if(x<0) x+=W;
+    const y=e.y*H;
+    const sc=doux?1:(0.6+0.4*Math.sin(t*e.v+e.x*40));
+    ctx.globalAlpha=e.a*sc;
+    ctx.fillStyle="#E6F1FA";
+    ctx.beginPath(); ctx.arc(x,y,e.r,0,7); ctx.fill();
+    if(e.eclat){
+      ctx.globalAlpha=e.a*sc*0.35;
+      ctx.strokeStyle="#CFE6F7"; ctx.lineWidth=0.7;
+      ctx.beginPath();
+      ctx.moveTo(x-e.r*4,y); ctx.lineTo(x+e.r*4,y);
+      ctx.moveTo(x,y-e.r*4); ctx.lineTo(x,y+e.r*4);
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---------- le soleil ---------- */
+function dessinerSoleil(t,p){
+  if(p<=0) return;
+  const pulse = doux?1:(1+Math.sin(t*1.25)*0.04);
+  ctx.save();
+  ctx.globalAlpha = p;
+
+  // halo large
+  let g=ctx.createRadialGradient(0,0,8,0,0,210*pulse);
+  g.addColorStop(0,"rgba(255,231,100,.55)");
+  g.addColorStop(.18,"rgba(255,201,0,.22)");
+  g.addColorStop(.55,"rgba(255,152,45,.07)");
+  g.addColorStop(1,"rgba(255,152,45,0)");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,210*pulse,0,7); ctx.fill();
+
+  // traînées de lentille
+  ctx.globalAlpha=p*0.5;
+  g=ctx.createLinearGradient(-330,0,330,0);
+  g.addColorStop(0,"rgba(255,231,100,0)");
+  g.addColorStop(.5,"rgba(255,231,100,.34)");
+  g.addColorStop(1,"rgba(255,231,100,0)");
+  ctx.fillStyle=g; ctx.fillRect(-330,-1.6,660,3.2);
+  g=ctx.createLinearGradient(0,-150,0,150);
+  g.addColorStop(0,"rgba(255,231,100,0)");
+  g.addColorStop(.5,"rgba(255,231,100,.22)");
+  g.addColorStop(1,"rgba(255,231,100,0)");
+  ctx.fillStyle=g; ctx.fillRect(-1.2,-150,2.4,300);
+
+  // couronne serrée
+  ctx.globalAlpha=p;
+  g=ctx.createRadialGradient(0,0,4,0,0,52*pulse);
+  g.addColorStop(0,"#FFFDF0"); g.addColorStop(.42,"#FFE764");
+  g.addColorStop(.78,"rgba(255,201,0,.55)"); g.addColorStop(1,"rgba(255,152,45,0)");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,52*pulse,0,7); ctx.fill();
+
+  // noyau
+  ctx.shadowColor="rgba(255,213,74,.95)"; ctx.shadowBlur=46;
+  g=ctx.createRadialGradient(-6,-6,2,0,0,28);
+  g.addColorStop(0,"#FFFFFF"); g.addColorStop(.55,"#FFE764"); g.addColorStop(1,"#FFB01F");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,27,0,7); ctx.fill();
+  ctx.shadowBlur=0;
+
+  ctx.font="600 15px 'Segoe UI',sans-serif"; ctx.textAlign="center";
+  ctx.fillStyle="rgba(255,246,201,.95)";
+  ctx.fillText("FIDAL Apps",0,56);
+  ctx.restore();
+}
+
+/* ---------- orbites avec traînée ---------- */
+function dessinerOrbite(centre,b,angle,p){
+  if(p<=0) return;
+  const N=54, TRAINE=2.1;
+  const pt=i=>{
+    const a=(i/N)*Math.PI*2;
+    const q=pointOrbite(b.orbite,a,b.incl,b.node);
+    return projeter({x:centre.x+q.x,y:centre.y+q.y,z:centre.z+q.z});
+  };
+  // le tracé froid, en un seul trait
+  ctx.strokeStyle=opa(b.couleur,0.05*p);
+  ctx.lineWidth=b.parent?0.8:1.3;
+  ctx.beginPath();
+  for(let i=0;i<=N;i++){const r=pt(i%N); i===0?ctx.moveTo(r.x,r.y):ctx.lineTo(r.x,r.y);}
+  ctx.stroke();
+  // la traînée chaude, derrière la planète
+  const pas=TRAINE/(Math.PI*2)*N;
+  for(let k=0;k<pas;k++){
+    const i=((angle/(Math.PI*2))*N-k+N*2)%N;
+    const r1=pt(Math.floor(i)), r2=pt(Math.floor(i)+1);
+    const chaud=1-k/pas;
+    ctx.strokeStyle=opa(mel(b.couleur,"#ffffff",0.35),chaud*chaud*0.42*p);
+    ctx.lineWidth=(b.parent?1.1:1.8)*r1.e;
+    ctx.beginPath(); ctx.moveTo(r1.x,r1.y); ctx.lineTo(r2.x,r2.y); ctx.stroke();
+  }
+}
+
+/* ---------- une planète ---------- */
+function dessinerPlanete(pt,b,f,t){
+  const r=Math.max(3.2,b.taille*pt.e);
+  const dx=-pt.x, dy=-pt.y, dd=Math.hypot(dx,dy)||1;
+  const ux=dx/dd, uy=dy/dd;
+  ctx.save(); ctx.globalAlpha=f;
+
+  if(b.anneau) dessinerAnneau(pt,r,f,Math.PI,Math.PI*2);
+
+  // auréole atmosphérique
+  const h=ctx.createRadialGradient(pt.x,pt.y,r*0.94,pt.x,pt.y,r*1.62);
+  h.addColorStop(0,opa(b.couleur,0.24));
+  h.addColorStop(0.45,opa(b.couleur,0.07));
+  h.addColorStop(1,opa(b.couleur,0));
+  ctx.fillStyle=h; ctx.beginPath(); ctx.arc(pt.x,pt.y,r*1.62,0,7); ctx.fill();
+
+  // --- le globe ---
+  ctx.save();
+  ctx.beginPath(); ctx.arc(pt.x,pt.y,r,0,7); ctx.clip();
+
+  // teinte de base, sourde
+  ctx.fillStyle=mel(b.couleur,"#0A1626",0.30);
+  ctx.fillRect(pt.x-r,pt.y-r,r*2,r*2);
+
+  // relief de surface, entraîné par la rotation propre
+  if(r>4.5){
+    const rot=b.rotPhase+t*b.rotVit;
+    for(const q of b.taches){
+      const L=q.lon+rot, c=Math.cos(L);
+      if(c<=0.06) continue;
+      const x=pt.x+Math.sin(L)*r*Math.cos(q.lat);
+      const y=pt.y-Math.sin(q.lat)*r;
+      const rx=q.r*r*c, ry=q.r*r;
+      const g=ctx.createRadialGradient(x,y,0,x,y,Math.max(rx,ry));
+      const teinte=q.clair?mel(b.couleur,"#FFFFFF",0.55):mel(b.couleur,"#07131F",0.6);
+      g.addColorStop(0,opa2(teinte,q.f*c*f));
+      g.addColorStop(1,opa2(teinte,0));
+      ctx.fillStyle=g;
+      ctx.save(); ctx.translate(x,y); ctx.scale(Math.max(c,0.05),1);
+      ctx.beginPath(); ctx.arc(0,0,ry,0,7); ctx.fill(); ctx.restore();
+    }
+  }
+
+  // lumière diffuse venant du soleil
+  const lx=pt.x+ux*r*1.15, ly=pt.y+uy*r*1.15;
+  let g=ctx.createRadialGradient(lx,ly,r*0.1,lx,ly,r*2.45);
+  g.addColorStop(0,"rgba(255,252,242,.62)");
+  g.addColorStop(0.35,"rgba(255,248,232,.24)");
+  g.addColorStop(1,"rgba(255,248,232,0)");
+  ctx.fillStyle=g; ctx.fillRect(pt.x-r,pt.y-r,r*2,r*2);
+
+  // face nuit
+  const nx=pt.x-ux*r*0.95, ny=pt.y-uy*r*0.95;
+  g=ctx.createRadialGradient(nx,ny,r*0.05,nx,ny,r*2.1);
+  g.addColorStop(0,"rgba(3,10,20,.90)");
+  g.addColorStop(0.45,"rgba(3,10,20,.52)");
+  g.addColorStop(1,"rgba(3,10,20,0)");
+  ctx.fillStyle=g; ctx.fillRect(pt.x-r,pt.y-r,r*2,r*2);
+
+  // assombrissement du bord
+  g=ctx.createRadialGradient(pt.x,pt.y,r*0.55,pt.x,pt.y,r);
+  g.addColorStop(0,"rgba(4,12,22,0)");
+  g.addColorStop(1,"rgba(4,12,22,.42)");
+  ctx.fillStyle=g; ctx.fillRect(pt.x-r,pt.y-r,r*2,r*2);
+  ctx.restore();
+
+  // liseré d'atmosphère sur le limbe éclairé
+  const ang=Math.atan2(uy,ux);
+  ctx.globalAlpha=f*0.6;
+  ctx.strokeStyle=mel(b.couleur,"#FFFFFF",0.9);
+  ctx.lineWidth=Math.max(0.5,r*0.055);
+  ctx.beginPath(); ctx.arc(pt.x,pt.y,r*0.975,ang-1.0,ang+1.0); ctx.stroke();
+
+  ctx.globalAlpha=f;
+  if(b.anneau) dessinerAnneau(pt,r,f,0,Math.PI);
+  ctx.restore();
+  return r;
+}
+
+function dessinerAnneau(pt,r,f,a1,a2){
+  const ap=Math.max(1.2,Math.cos(tilt));
+  ctx.save(); ctx.globalAlpha=f*0.6;
+  ctx.translate(pt.x,pt.y); ctx.scale(1,Math.max(0.10,Math.cos(tilt)));
+  [[1.75,2.05,0.55],[2.18,2.62,0.38]].forEach(([ri,ro,al])=>{
+    const g=ctx.createRadialGradient(0,0,r*ri,0,0,r*ro);
+    g.addColorStop(0,`rgba(232,240,248,0)`);
+    g.addColorStop(0.35,`rgba(232,240,248,${al})`);
+    g.addColorStop(1,`rgba(232,240,248,0)`);
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(0,0,r*ro,a1,a2); ctx.arc(0,0,r*ri,a2,a1,true); ctx.fill();
+  });
+  ctx.restore();
+}
+
+/* ---------- liens en présentation : au clic sur une planète ----------
+   Les liens n'encombrent pas le ciel en permanence ; on clique une planète,
+   elle s'allume et ses liens apparaissent, parcourus par la guirlande. */
+let selectionPres = null;
+let positionsEcran = [];   /* {id, x, y, r} en coordonnées d'écran, pour le clic */
+
+function dessinerLiensPres(monde, t, ech){
+  if(!selectionPres || !monde[selectionPres]) return;
+  const liens = LIENS_REELS.filter(l=>l.de===selectionPres || l.vers===selectionPres);
+  for(const l of liens){
+    const A = monde[l.de], B = monde[l.vers];
+    if(!A||!B) continue;
+    /* arc en trois dimensions, légèrement soulevé, projeté en 24 points */
+    const N=24, pts=[];
+    const d=Math.hypot(B.p.x-A.p.x,B.p.y-A.p.y,B.p.z-A.p.z);
+    for(let i=0;i<=N;i++){
+      const u=i/N, h=Math.sin(u*Math.PI)*d*0.16;
+      pts.push(projeter({x:A.p.x+(B.p.x-A.p.x)*u, y:A.p.y+(B.p.y-A.p.y)*u-h, z:A.p.z+(B.p.z-A.p.z)*u}));
+    }
+    ctx.save();
+    ctx.lineCap="round";
+    ctx.strokeStyle="rgba(109,213,220,.18)"; ctx.lineWidth=1.2;
+    ctx.beginPath(); pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)); ctx.stroke();
+    ctx.strokeStyle="rgba(109,213,220,.55)"; ctx.lineWidth=0.7;
+    ctx.stroke();
+    /* la guirlande : trois triangles qui vont de l'appelant vers l'appelé */
+    const vit = 0.28;
+    for(let k=0;k<3;k++){
+      const u = doux ? (k+0.5)/3 : ((t*vit + k/3) % 1);
+      const i = Math.min(N-1, Math.floor(u*N)), f = u*N - i;
+      const q0=pts[i], q1=pts[i+1];
+      const x=q0.x+(q1.x-q0.x)*f, y=q0.y+(q1.y-q0.y)*f;
+      const ang=Math.atan2(q1.y-q0.y,q1.x-q0.x);
+      const s0=Math.max(0.6,q0.e);
+      ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(s0,s0);
+      ctx.shadowColor="rgba(109,213,220,.95)"; ctx.shadowBlur=9;
+      ctx.fillStyle="#FFFFFF";
+      ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-4.5,3.2); ctx.lineTo(-4.5,-3.2); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+}
+
+function planeteSousLeCurseur(x,y){
+  let meilleur=null, dmin=1e9;
+  for(const q of positionsEcran){
+    const d=Math.hypot(q.x-x,q.y-y);
+    if(d<q.r+12 && d<dmin){ dmin=d; meilleur=q.id; }
+  }
+  return meilleur;
+}
+
+/* ---------- boucle ---------- */
+function dessinerCiel(now){
+  const t=(now-t0)/1000;
+  tilt+=(tiltCible-tilt)*0.06;
+  zoom+=(zoomCible-zoom)*0.09;
+  if(!doux && !glisse) azimut+=0.0016;
+
+  dessinerFond(t);
+
+  const cx=W/2, cy=H/2+10;
+  const ech=Math.min(W/1560,H/1040,1.05)*zoom;
+
+  const ang = doux ? 0 : t;
+  const pSoleil = doux?1:borne(t/1.1,0,1);
+  const pOrbites= doux?1:borne((t-0.9)/1.5,0,1);
+
+  // positions dans l'espace
+  const monde={};
+  for(const b of corps){
+    if(b.parent) continue;
+    const a=b.phase+ang*b.vitesse;
+    const q=pointOrbite(b.orbite,a,b.incl,b.node);
+    monde[b.id]={p:q,a,b,centre:{x:0,y:0,z:0}};
+  }
+  for(const b of corps){
+    if(!b.parent) continue;
+    const pa=monde[b.parent].p;
+    const a=b.phase+ang*b.vitesse;
+    const q=pointOrbite(b.orbite,a,b.incl,b.node);
+    monde[b.id]={p:{x:pa.x+q.x,y:pa.y+q.y,z:pa.z+q.z},a,b,centre:pa};
+  }
+
+  // foyer de la caméra (visite guidée)
+  let vx=0, vy=0;
+  if(visite.actif && visite.cible && monde[visite.cible]){
+    const pr=projeter(monde[visite.cible].p);
+    vx=pr.x; vy=pr.y;
+  }
+  foyer.x+=(vx-foyer.x)*0.045; foyer.y+=(vy-foyer.y)*0.045;
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(ech,ech); ctx.translate(-foyer.x,-foyer.y);
+
+  // orbites
+  for(const b of corps){
+    const m=monde[b.id];
+    const pv = doux?1:borne((t-(b.parent?1.5:0.9))/1.4,0,1);
+    dessinerOrbite(m.centre,b,m.a,pOrbites*pv);
+  }
+
+  // tri par profondeur, soleil compris
+  const liste=Object.values(monde).map(m=>({...m,pr:projeter(m.p)}));
+  liste.push({soleil:true,pr:{prof:0}});
+  liste.sort((a,b)=>a.pr.prof-b.pr.prof);
+
+  /* liens de la planète sélectionnée, sous les corps */
+  dessinerLiensPres(monde, t, ech);
+
+  const etiquettes=[];
+  positionsEcran = [];
+  for(const it of liste){
+    if(it.soleil){ dessinerSoleil(t,pSoleil); continue; }
+    const app = doux?1:borne((t-(1.5+it.b.ordre*0.075))/0.8,0,1);
+    if(app<=0) continue;
+    const r=dessinerPlanete(it.pr,it.b,app,t);
+    if(it.b.id===selectionPres){
+      ctx.save(); ctx.globalAlpha=app;
+      ctx.strokeStyle="rgba(255,231,100,.9)"; ctx.lineWidth=1.6;
+      ctx.shadowColor="rgba(255,231,100,.8)"; ctx.shadowBlur=12;
+      ctx.beginPath(); ctx.arc(it.pr.x,it.pr.y,r+7+Math.sin(t*3)*1.2,0,7); ctx.stroke();
+      ctx.restore();
+    }
+    positionsEcran.push({id:it.b.id, x:cx+(it.pr.x-foyer.x)*ech, y:cy+(it.pr.y-foyer.y)*ech, r:r*ech});
+    etiquettes.push({pt:it.pr,b:it.b,r,f:app});
+  }
+
+  // étiquettes : les concentrateurs d'abord, puis on écarte ce qui se chevauche
+  ctx.textAlign="center";
+  etiquettes.sort((a,b)=>(a.b.parent?1:0)-(b.b.parent?1:0) || b.pt.e-a.pt.e);
+  const pris=[];
+  for(const e of etiquettes){
+    const hub=!e.b.parent;
+    ctx.font=(hub?"600 13.5px":"500 11px")+" 'Segoe UI',sans-serif";
+    const lib=nomDe(parId[e.b.id]);
+    const w=ctx.measureText(lib).width+11;
+    const y=e.pt.y+e.r+(hub?19:14);
+    const boite={x:e.pt.x-w/2,y:y-11,w,h:15};
+    if(pris.some(p=>boite.x<p.x+p.w+3 && boite.x+boite.w+3>p.x && boite.y<p.y+p.h+2 && boite.y+boite.h+2>p.y)) continue;
+    pris.push(boite);
+    const loin=borne((e.pt.e-0.70)/0.5,0,1);
+    ctx.globalAlpha=e.f*(0.45+0.55*loin);
+    ctx.shadowColor="rgba(0,6,14,.95)"; ctx.shadowBlur=7;
+    ctx.fillStyle=hub?"#FFFFFF":"rgba(214,232,246,.88)";
+    ctx.fillText(lib,e.pt.x,y);
+    ctx.shadowBlur=0;
+  }
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  // vignettage
+  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.30,W/2,H/2,Math.max(W,H)*0.78);
+  v.addColorStop(0,"rgba(2,7,14,0)");
+  v.addColorStop(1,"rgba(2,7,14,.62)");
+  ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+
+  requestAnimationFrame(dessinerCiel);
+}
+
+/* ---------- pilotage à la souris ---------- */
+let derX=0,derY=0, depX=0, depY=0, bouge=false;
+cv.addEventListener("pointerdown",e=>{
+  glisse=true; bouge=false; derX=depX=e.clientX; derY=depY=e.clientY; if(cv.setPointerCapture) cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener("pointermove",e=>{
+  if(!glisse) return;
+  if(!bouge && Math.hypot(e.clientX-depX,e.clientY-depY)>6){ bouge=true; arreterVisite(); }
+  if(!bouge) return;
+  azimut -= (e.clientX-derX)*0.006;
+  tiltCible = borne(tiltCible + (e.clientY-derY)*0.005, 0, 1.38);
+  tilt = tiltCible;
+  derX=e.clientX; derY=e.clientY;
+  majBasculeRendu();
+});
+cv.addEventListener("pointerup",e=>{
+  const etaitClic = glisse && !bouge;
+  glisse=false;
+  if(!etaitClic) return;
+  /* pendant la visite guidée, un clic passe au module suivant */
+  if(visite.actif){ clearTimeout(visite.minuteur); etape(visite.etape+1); return; }
+  const rect=cv.getBoundingClientRect();
+  const id=planeteSousLeCurseur(e.clientX-rect.left, e.clientY-rect.top);
+  selectionPres = (id && id!==selectionPres) ? id : null;
+});
+cv.addEventListener("pointercancel",()=>glisse=false);
+cv.addEventListener("wheel",e=>{e.preventDefault();zoomCible=borne(zoomCible*(e.deltaY>0?0.92:1.08),0.5,2.6);},{passive:false});
+
+/* ---------- chiffres du bas ---------- */
+function majChiffres(){
+  const c=[[OUTILS.length,"OUTILS"],
+           [OUTILS.filter(o=>o.niveau>=4).length,"UTILISABLES"],
+           [LIENS.filter(l=>l.type==="existant").length,"INTERACTIONS"],
+           [OUTILS.filter(o=>o.niveau===5).length,"EN PRODUCTION"]];
+  document.getElementById("chiffres").innerHTML =
+    c.map(([n,l])=>`<div class="chiffre"><b data-cible="${n}">${n}</b><span>${l}</span></div>`).join("");
+}
+majChiffres();
+
+function animerChiffres(){
+  document.querySelectorAll(".chiffre b").forEach(el=>{
+    const cible=+el.dataset.cible;
+    if(doux){el.textContent=cible;return;}
+    let v=0, depart=performance.now();
+    (function pas(now){
+      const k=borne((now-depart-1600)/900,0,1);
+      v=Math.round(cible*(1-Math.pow(1-k,3)));
+      el.textContent=v;
+      if(k<1) requestAnimationFrame(pas);
+    })(depart);
+  });
+}
+
+/* ==================================================================
+   5. BASCULES
+   ================================================================== */
+const bPil=document.getElementById("btn-pilotage");
+const bPre=document.getElementById("btn-presentation");
+const bPlat=document.getElementById("btn-plat");
+const b3d=document.getElementById("btn-3d");
+let anime=false;
+
+function majBasculeRendu(){
+  const plat=tiltCible<0.28;
+  bPlat.setAttribute("aria-pressed",plat);
+  b3d.setAttribute("aria-pressed",!plat);
+}
+
+function mode(m){
+  const p=(m==="pilotage");
+  if(p){ arreterVisite(); if(public_!=="collaborateurs") majPublic("collaborateurs"); }
+  else { fermerTiroir(); selectionPres=null; }
+  bPil.setAttribute("aria-pressed",p); bPre.setAttribute("aria-pressed",!p);
+  document.getElementById("vue-pilotage").classList.toggle("active",p);
+  document.getElementById("vue-presentation").classList.toggle("active",!p);
+  if(!p){
+    redimensionner();
+    t0=performance.now();
+    animerChiffres();
+    if(!anime){anime=true;requestAnimationFrame(dessinerCiel);}
+  }
+}
+bPil.addEventListener("click",()=>mode("pilotage"));
+bPre.addEventListener("click",()=>mode("presentation"));
+bPlat.addEventListener("click",()=>{tiltCible=0;majBasculeRendu();});
+b3d.addEventListener("click",()=>{tiltCible=1.02;majBasculeRendu();});
+
+/* ---------- filtres du schéma ---------- */
+function brancherFiltre(id,cle){
+  const b=document.getElementById(id);
+  b.addEventListener("click",()=>{
+    filtres[cle]=!filtres[cle];
+    b.setAttribute("aria-pressed",filtres[cle]);
+    if(selection && !visibleOutil(parId[selection])) fermer();
+    dessinerCarte();
+    if(selection) surligner(selection);
+  });
+}
+brancherFiltre("f-reste","reste");
+
+/* ---------- tiroir des suggestions ---------- */
+const tiroir=document.getElementById("tiroir"), bSugg=document.getElementById("btn-sugg");
+function ouvrirTiroir(){ rendreSuggestions(); tiroir.classList.add("ouvert"); bSugg.setAttribute("aria-expanded","true"); }
+function fermerTiroir(){ tiroir.classList.remove("ouvert"); bSugg.setAttribute("aria-expanded","false"); }
+bSugg.addEventListener("click",()=>tiroir.classList.contains("ouvert")?fermerTiroir():ouvrirTiroir());
+document.getElementById("fermer-tiroir").addEventListener("click",fermerTiroir);
+document.querySelectorAll("#filtres-sugg button").forEach(b=>b.addEventListener("click",()=>{
+  filtreSugg=b.dataset.f;
+  document.querySelectorAll("#filtres-sugg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  rendreSuggestions();
+}));
+majCompteurSugg();
+chargerArbitrages();
+
+/* ---------- vocabulaire : choisi au lancement de la visite ---------- */
+function majPublic(p){
+  public_=p;
+  dessinerCarte();
+  if(selection){ ouvrir(selection); }
+  document.querySelector(".pres-tete p").textContent =
+    p==="avocats" ? "CE QUE LE CABINET SAIT PRODUIRE" : "UNE SUITE D'OUTILS CONSTRUITE AU CABINET";
+}
+
+/* ---------- visite guidée ---------- */
+const ETAPES=[
+  {cible:null,zoom:1.0,tilt:1.02,titre:"FIDAL Apps",
+   texte:"Un seul point d'entrée. Toutes les tuiles du cabinet partent d'ici, et tout ce qui a été construit gravite autour."},
+  {cible:"marteau",zoom:2.1,tilt:0.92,titre:"MARTEAU",
+   texte:"L'audit de portefeuille immobilier. À lui seul, il interroge sept outils de données et en compile un rapport unique."},
+  {cible:"fusion",zoom:2.1,tilt:0.92,titre:"FUSION",
+   texte:"La fusion de sociétés : lecture de l'état hypothécaire, regroupement par unité foncière, cinq blocs rédactionnels en sortie."},
+  {cible:"countdown",zoom:2.1,tilt:0.92,titre:"COUNTDOWN",
+   texte:"Le chiffrage : émoluments, frais, délais, prêts. Dix calculateurs réunis derrière une seule porte."},
+  {cible:"prix",zoom:2.3,tilt:0.92,titre:"PRIX",
+   texte:"L'estimation d'un bien et l'argumentaire de négociation : ventes réellement enregistrées, quartier, rendement, travaux chiffrés — jusqu'au prix à proposer au vendeur."},
+  {cible:null,zoom:0.72,tilt:1.16,titre:"Un atelier, pas une collection",
+   texte:"Vingt-cinq outils, et surtout les liens entre eux : c'est là que se gagne le temps. Cliquez une planète pour voir les siens."}
+];
+const recit=document.getElementById("recit");
+const bVisite=document.getElementById("btn-visite");
+
+function etape(i){
+  if(i>=ETAPES.length){ arreterVisite(); return; }
+  const e=ETAPES[i];
+  visite.etape=i; visite.cible=e.cible; zoomCible=e.zoom; tiltCible=e.tilt; majBasculeRendu();
+  /* la planète visitée s'allume avec ses liens */
+  selectionPres = e.cible;
+  recit.classList.remove("vu");
+  setTimeout(()=>{
+    const titre = e.cible && parId[e.cible] ? nomDe(parId[e.cible]) : e.titre;
+    recit.innerHTML=`<b>${titre}</b><span>${e.texte}</span>`;
+    recit.classList.add("vu");
+  },450);
+  clearTimeout(visite.minuteur);
+  visite.minuteur=setTimeout(()=>etape(i+1),7600);
+}
+const choixPublic=document.getElementById("choix-public");
+function proposerVisite(){ choixPublic.classList.add("on"); }
+choixPublic.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+  choixPublic.classList.remove("on");
+  if(!b.dataset.p) return;
+  majPublic(b.dataset.p);
+  lancerVisite();
+}));
+function lancerVisite(){
+  visite.actif=true; bVisite.setAttribute("aria-pressed","true");
+  bVisite.textContent="Arrêter la visite";
+  etape(0);
+}
+function arreterVisite(){
+  if(!visite.actif) return;
+  visite.actif=false; visite.cible=null;
+  clearTimeout(visite.minuteur);
+  zoomCible=1; tiltCible=1.02; majBasculeRendu();
+  recit.classList.remove("vu");
+  selectionPres=null;
+  bVisite.setAttribute("aria-pressed","false");
+  bVisite.textContent="Visite guidée";
+}
+bVisite.addEventListener("click",()=>visite.actif?arreterVisite():proposerVisite());
+</script>
+</body>
+</html>
