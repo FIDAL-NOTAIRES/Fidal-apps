@@ -240,6 +240,22 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
   backdrop-filter:blur(4px);transition:background .18s,color .18s,border-color .18s}
 .bouton-filtre:hover{color:var(--encre)}
 .bouton-filtre[aria-pressed="true"]{background:var(--canard);border-color:var(--canard);color:#fff}
+.etat-drive{display:flex;align-items:center;gap:8px;background:rgba(8,21,37,.8);border:1px solid var(--trait);
+  border-radius:999px;padding:4px 6px 4px 12px;font-size:11.5px;color:var(--encre-faible);backdrop-filter:blur(4px);max-width:min(60vw,420px)}
+.etat-drive i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);flex:none}
+.etat-drive.ok i{background:#3CC97A;box-shadow:0 0 8px rgba(60,201,122,.7)}
+.etat-drive.ko i{background:var(--carmin);box-shadow:0 0 8px rgba(160,16,64,.7)}
+.etat-drive.attente i{background:var(--orange);animation:pulse 1s infinite alternate}
+@keyframes pulse{from{opacity:.4}to{opacity:1}}
+.etat-drive span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.etat-drive a{color:var(--jaune-texte);text-decoration:none}
+.etat-drive a:hover{text-decoration:underline}
+.etat-drive button{background:none;border:1px solid var(--trait);color:var(--encre);font:inherit;font-size:12px;
+  width:26px;height:26px;border-radius:50%;cursor:pointer;line-height:1;flex:none;transition:background .15s}
+.etat-drive button:hover{background:rgba(255,255,255,.08)}
+.etat-drive button[disabled]{opacity:.4;cursor:default}
+.source-points{font-size:10.5px;color:var(--encre-faible);font-style:italic;padding:0 22px 8px}
+.source-points a{color:var(--jaune-texte);text-decoration:none}
 
 /* bascule de public */
 .public{display:flex;border:1px solid var(--trait);border-radius:999px;overflow:hidden}
@@ -295,6 +311,8 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
   .fermer{top:12px;right:14px;font-size:26px;padding:6px}
 }
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://connexion-omega.vercel.app/acces.js"></script>
 </head>
 <body>
 
@@ -313,6 +331,10 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
   <section class="vue active" id="vue-pilotage">
     <div class="outils-carte">
       <button class="bouton-filtre" id="f-reste" aria-pressed="false">Ce qui reste à faire</button>
+      <div class="etat-drive" id="etat-drive" aria-live="polite">
+        <i></i><span id="etat-drive-texte">Mémos Drive : lecture…</span>
+        <button type="button" id="btn-rafraichir" title="Relire les points depuis le Drive" aria-label="Rafraîchir">↻</button>
+      </div>
     </div>
     <svg id="carte" viewBox="-560 -535 1120 1070" preserveAspectRatio="xMidYMid meet" role="img"
          aria-label="Carte des outils et de leurs interactions"></svg>
@@ -346,6 +368,7 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
         </div>
         <div class="jauge-note">niveau évalué d'après les mémos et les dépôts</div>
       </div>
+      <div class="source-points" id="p-source"></div>
       <div class="sections" id="p-sections"></div>
     </aside>
 
@@ -608,6 +631,89 @@ function ouvrirAppli(id){
   window.open(u, "_blank", "noopener");
   return true;
 }
+
+/* ---------- Points à travailler : lus sur le Drive ----------
+   Convention (21/09/2026) : dans le dossier Drive de chaque outil, un fichier
+   `POINTS-<identifiant>.md` (ex. POINTS-marteau.md) avec une ligne par point :
+     - [ ] point à faire
+     - [x] point réalisé (reste affiché, barré)
+   CARTO lit ces fichiers à l'ouverture et sur le bouton ↻, avec l'accord Google
+   donné le matin sur la page de connexion. Sans accord, les points de la
+   constante OUTILS servent de repli. */
+const PAGE_CONNEXION = "https://connexion-omega.vercel.app/";
+const POINTS_ORIGINE = {};   // id -> {fichier, nom, modifie}
+let pointsDrive = false;
+
+function etatDrive(cl, html, occupe){
+  const e = document.getElementById("etat-drive"); if(!e) return;
+  e.className = "etat-drive "+(cl||"");
+  document.getElementById("etat-drive-texte").innerHTML = html;
+  const b = document.getElementById("btn-rafraichir"); if(b) b.disabled = !!occupe;
+}
+function analyserPoints(texte){
+  const pts = [];
+  texte.split(/\r?\n/).forEach(l=>{
+    const m = l.match(/^\s*[-*]\s*\[( |x|X)\]\s*(.+?)\s*$/);
+    if(m){ pts.push({t:m[2], fait:m[1].toLowerCase()==="x"}); return; }
+    const n = l.match(/^\s*[-*]\s+(?!\[)(.+?)\s*$/);
+    if(n) pts.push({t:n[1], fait:false});
+  });
+  return pts;
+}
+async function driveGet(url, jeton){
+  const r = await fetch(url, {headers:{Authorization:"Bearer "+jeton}});
+  if(!r.ok) throw new Error("Drive "+r.status);
+  return r;
+}
+async function chargerPointsDrive(interactif){
+  if(typeof FidalAcces === "undefined"){ etatDrive("ko","Bibliothèque d'accès indisponible — points de la carte"); return; }
+  etatDrive("attente","Mémos Drive : lecture…", true);
+  const jeton = await FidalAcces.jeton({interactif: !!interactif});
+  if(!jeton){
+    etatDrive("", `Drive non connecté — <a href="${PAGE_CONNEXION}" target="_blank" rel="noopener">ouvrir la journée</a> puis ↻`);
+    return;
+  }
+  try{
+    const u = new URL("https://www.googleapis.com/drive/v3/files");
+    u.searchParams.set("q", "name contains 'POINTS-' and trashed = false");
+    u.searchParams.set("fields", "files(id,name,modifiedTime,parents)");
+    u.searchParams.set("pageSize", "200");
+    u.searchParams.set("corpora", "allDrives");
+    u.searchParams.set("supportsAllDrives", "true");
+    u.searchParams.set("includeItemsFromAllDrives", "true");
+    const liste = (await (await driveGet(u, jeton)).json()).files || [];
+    const cibles = [];
+    liste.forEach(f=>{
+      const m = f.name.match(/^POINTS-([a-z0-9-]+)\.md$/i);
+      if(!m) return;
+      const id = m[1].toLowerCase();
+      if(!parId[id]) return;
+      /* plusieurs fichiers pour le même outil : le plus récent gagne */
+      const deja = cibles.find(c=>c.id===id);
+      if(!deja) cibles.push({id, f}); else if(f.modifiedTime > deja.f.modifiedTime) deja.f = f;
+    });
+    let lus = 0;
+    await Promise.all(cibles.map(async c=>{
+      try{
+        const txt = await (await driveGet("https://www.googleapis.com/drive/v3/files/"+c.f.id+"?alt=media", jeton)).text();
+        parId[c.id].points = analyserPoints(txt);
+        POINTS_ORIGINE[c.id] = {fichier:c.f.id, nom:c.f.name, modifie:c.f.modifiedTime};
+        lus++;
+      }catch(e){ /* ce fichier reste sur le repli */ }
+    }));
+    pointsDrive = lus>0;
+    const manquants = OUTILS.length - lus;
+    etatDrive("ok", `Mémos Drive : ${lus} fichier${lus>1?"s":""} de points lu${lus>1?"s":""}`+(manquants?` — ${manquants} outil${manquants>1?"s":""} sans fichier (points de la carte)`:""));
+    dessinerCarte();
+    if(selection){ surligner(selection); ouvrir(selection); }
+    if(typeof majChiffres==="function") majChiffres();
+  }catch(e){
+    etatDrive("ko", "Lecture du Drive impossible ("+e.message+") — points de la carte");
+  }
+}
+document.getElementById("btn-rafraichir").addEventListener("click", ()=>chargerPointsDrive(true));
+/* à l'ouverture : reprise silencieuse de l'accord du matin ; si elle échoue, la pastille propose la page de connexion */
+setTimeout(()=>chargerPointsDrive(false), 400);
 
 /* Interactions. type : "existant" ou "suggere" */
 const LIENS = [
@@ -1095,6 +1201,10 @@ function ouvrir(id){
     (entrants.length?`<div class="vide" style="margin-top:10px">Il est appelé par</div>${entrants.map(l=>ligne(l,"entre")).join("")}`:"") ||
     `<p class="vide">Aucune interaction construite à ce jour.</p>`;
 
+  const org = POINTS_ORIGINE[o.id];
+  document.getElementById("p-source").innerHTML = org
+    ? `Points lus sur le Drive (<a href="https://drive.google.com/file/d/${org.fichier}/view" target="_blank" rel="noopener">${org.nom}</a>, modifié le ${new Date(org.modifie).toLocaleDateString("fr-FR")})`
+    : `Points de la carte — aucun fichier POINTS-${o.id}.md trouvé sur le Drive`;
   document.getElementById("p-sections").innerHTML =
       sectionHTML("Points à travailler", pts, pointsRestants(o), "")
     + sectionHTML("Pistes proposées", pis, (o.pistes||[]).length, "pistes")
