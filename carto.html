@@ -64,6 +64,8 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
 .noeud circle.corps{transition:stroke-width .15s,opacity .2s}
 .noeud:hover circle.corps{stroke-width:3.5}
 .noeud text{font-size:11.5px;fill:var(--encre);pointer-events:none;text-anchor:middle}
+.noeud text.ouvrir{font-size:9px;fill:var(--jaune-texte,#FFC900);opacity:0;transition:opacity .15s}
+.noeud.choisi text.ouvrir,.noeud:hover text.ouvrir{opacity:.95}
 .noeud.centre text{font-size:14px;font-family:Georgia,serif}
 .noeud.hub text{font-size:12.5px}
 .noeud text.role{font-size:9.5px;fill:var(--encre-faible)}
@@ -161,6 +163,14 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
 .pan-tete{padding:20px 22px 16px;border-bottom:1px solid var(--trait)}
 .pan-tete .famille{font-size:11px;color:var(--cyan);letter-spacing:.6px}
 .pan-tete h2{margin:6px 0 4px;font-size:25px;color:var(--jaune-forme)}
+.pan-titre{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pan-titre h2{flex:1;min-width:0}
+.pan-titre h2 a{color:inherit;text-decoration:none;border-bottom:1px dashed rgba(255,231,100,.45)}
+.pan-titre h2 a:hover{border-bottom-style:solid}
+.btn-ouvrir{flex:none;display:inline-flex;align-items:center;gap:6px;background:rgba(255,231,100,.12);border:1px solid rgba(255,231,100,.5);
+  color:var(--jaune-forme);font:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:background .15s}
+.btn-ouvrir:hover{background:rgba(255,231,100,.24)}
+.btn-ouvrir[hidden]{display:none}
 .pan-tete p{margin:8px 0 0;font-size:13px;line-height:1.55;color:var(--encre-faible)}
 .fermer{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--encre-faible);font-size:22px;cursor:pointer;line-height:1}
 .fermer:hover{color:var(--encre)}
@@ -263,6 +273,9 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
 .ligne-outil .jh i{width:8px;height:14px;border-radius:2px;background:rgba(255,255,255,.09);display:block}
 .ligne-outil .reste{font-size:11px;color:var(--nuit);background:var(--cyan);border-radius:999px;padding:2px 8px;font-weight:600;min-width:24px;text-align:center;flex:none}
 .ligne-outil .reste.zero{background:rgba(255,255,255,.12);color:var(--encre-faible)}
+.ligne-outil .aller{flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+  border:1px solid rgba(255,231,100,.45);color:var(--jaune-forme);text-decoration:none;font-size:15px;line-height:1}
+.ligne-outil .aller:active{background:rgba(255,231,100,.2)}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:820px){
@@ -319,7 +332,10 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
       <button class="fermer" id="fermer" aria-label="Fermer le détail">×</button>
       <div class="pan-tete">
         <div class="famille" id="p-famille"></div>
-        <h2 id="p-nom"></h2>
+        <div class="pan-titre">
+          <h2 id="p-nom"></h2>
+          <a id="p-ouvrir" class="btn-ouvrir" target="_blank" rel="noopener" hidden title="Ouvrir l'application dans un nouvel onglet">Ouvrir l'application <span aria-hidden="true">↗</span></a>
+        </div>
         <p id="p-resume"></p>
       </div>
       <div class="jauge-ligne">
@@ -366,7 +382,7 @@ h1,h2,h3,.titre{font-family:Georgia,"Times New Roman",serif;font-weight:400}
       <p>UNE SUITE D'OUTILS CONSTRUITE AU CABINET</p>
     </div>
     <div class="chiffres" id="chiffres"></div>
-    <div class="aide">glisser pour tourner · molette pour approcher · cliquer une planète pour voir ses liens</div>
+    <div class="aide">glisser pour tourner · molette pour approcher · cliquer une planète pour voir ses liens · recliquer pour ouvrir l'application</div>
     <div class="choix-public" id="choix-public">
       <div class="boite">
         <h3>Pour qui est cette visite ?</h3>
@@ -558,6 +574,40 @@ const OUTILS = [
    points:["Périmètre encore ouvert"],
    pistes:["Reprendre cette carte, en mode présentation, comme premier argument de démonstration"]}
 ];
+
+/* Adresses des applications. Un outil sans adresse n'est pas encore en ligne :
+   il reste consultable dans la carte, mais n'ouvre rien. Chaque adresse s'ouvre
+   dans un nouvel onglet, dans les deux modes (décision du 21/09/2026). */
+const ADRESSES = {
+  "fidal-apps":       "https://fidal-apps.vercel.app/",
+  "marteau":          "https://marteau-rho.vercel.app/",
+  "fusion":           "https://fusion-three-kappa.vercel.app/",
+  "countdown":        "https://countdown-kappa-azure.vercel.app/",
+  "redpar":           "https://redpar-frontend.vercel.app/",
+  "urba":             "https://urba-lemon.vercel.app/",
+  "xylo":             "https://xylo-phi.vercel.app/",
+  "trente":           "https://trente.vercel.app/",
+  "matrice":          "https://matrice-black.vercel.app/",
+  "certif":           "https://certif-bay.vercel.app/",
+  "risques":          "https://risques.vercel.app/",
+  "paint":            "https://paint-blue.vercel.app/",
+  "plume":            "https://plume-mocha.vercel.app/",
+  "pret-particulier": "https://pret-particulier.vercel.app/",
+  "pret-pro":         "https://pret-pro.vercel.app/",
+  "prix":             "https://prix-mu.vercel.app/",
+  "attente":          "https://attente.vercel.app/",
+  "radio":            "https://fidal-apps.vercel.app/",
+  "presse":           "https://fidal-apps.vercel.app/",
+  "partage":          "https://partage-amiable.vercel.app/",
+  "consult":          "https://consult-sand.vercel.app/"
+};
+OUTILS.forEach(o=>{ if(ADRESSES[o.id]) o.url = ADRESSES[o.id]; });
+const adresseDe = id => (parId[id] && parId[id].url) || null;
+function ouvrirAppli(id){
+  const u = adresseDe(id); if(!u) return false;
+  window.open(u, "_blank", "noopener");
+  return true;
+}
 
 /* Interactions. type : "existant" ou "suggere" */
 const LIENS = [
@@ -871,13 +921,31 @@ function dessinerCarte(){
       g.appendChild(t);
     });
 
+    /* petite flèche « ouvrir » au-dessus du cercle, visible au survol : l'outil est en ligne */
+    if(o.url){
+      g.classList.add("lie");
+      const fl = document.createElementNS(SVGNS,"text");
+      fl.setAttribute("class","ouvrir");
+      fl.setAttribute("y", -p.r - 6);
+      fl.textContent = "ouvrir ↗";
+      g.appendChild(fl);
+    }
+
     gNoeuds.appendChild(g);
   });
 
   dessinerListeMobile();
 
+  /* Un clic ouvre le panneau ; un second clic sur l'outil déjà ouvert, ou un clic
+     avec Ctrl / Cmd, ou un clic du milieu, saute directement à l'application. */
   gNoeuds.querySelectorAll(".noeud").forEach(n=>{
-    n.addEventListener("click",()=>ouvrir(n.dataset.id));
+    n.addEventListener("click",e=>{
+      const id = n.dataset.id;
+      if((e.ctrlKey||e.metaKey) && ouvrirAppli(id)) return;
+      if(selection===id && panneau.classList.contains("ouvert") && ouvrirAppli(id)) return;
+      ouvrir(id);
+    });
+    n.addEventListener("auxclick",e=>{ if(e.button===1){ e.preventDefault(); ouvrirAppli(n.dataset.id); } });
     n.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrir(n.dataset.id);} });
     n.addEventListener("mouseenter",()=>surligner(n.dataset.id));
     n.addEventListener("mouseleave",()=>{ if(!selection) surligner(null); });
@@ -901,10 +969,12 @@ function dessinerListeMobile(){
             <div class="nom">${nomDe(o)}<small>${niv(o.niveau).nom}</small></div>
             <div class="jh">${NIVEAUX.map(l=>`<i style="${l.n<=o.niveau?`background:${l.couleur}`:""}"></i>`).join("")}</div>
             <div class="reste ${reste?"":"zero"}" title="points restant à travailler">${reste}</div>
+            ${o.url?`<a class="aller" href="${o.url}" target="_blank" rel="noopener" aria-label="Ouvrir ${o.nom}" title="Ouvrir l'application">↗</a>`:""}
           </div>`;
         }).join("")
       + `</div>`;
   }).join("");
+  boite.querySelectorAll(".ligne-outil .aller").forEach(a=>a.addEventListener("click",e=>e.stopPropagation()));
   boite.querySelectorAll(".ligne-outil").forEach(el=>{
     el.addEventListener("click",()=>ouvrir(el.dataset.id));
     el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrir(el.dataset.id);} });
@@ -987,7 +1057,16 @@ function ouvrir(id){
   surligner(id);
 
   document.getElementById("p-famille").textContent = FAMILLES[o.famille].nom;
-  document.getElementById("p-nom").textContent = nomDe(o);
+  /* deux accès à l'application : le nom en haut du panneau, et le bouton à côté */
+  const pNom = document.getElementById("p-nom"), pOuvrir = document.getElementById("p-ouvrir");
+  if(o.url){
+    pNom.innerHTML = `<a href="${o.url}" target="_blank" rel="noopener" title="Ouvrir ${o.nom} dans un nouvel onglet">${nomDe(o)}</a>`;
+    pOuvrir.href = o.url; pOuvrir.hidden = false;
+  } else {
+    pNom.textContent = nomDe(o);
+    pOuvrir.removeAttribute("href"); pOuvrir.hidden = true;
+  }
+  svg.querySelectorAll(".noeud").forEach(n=>n.classList.toggle("choisi", n.dataset.id===id));
   document.getElementById("p-resume").textContent = o.resume;
   document.getElementById("p-jauge").innerHTML = jaugeHTML(o.niveau);
   document.getElementById("p-niveau").textContent = niv(o.niveau).nom;
@@ -1034,6 +1113,7 @@ function ouvrir(id){
 
 function fermer(){
   panneau.classList.remove("ouvert");
+  svg.querySelectorAll(".noeud.choisi").forEach(n=>n.classList.remove("choisi"));
   selection = null;
   surligner(null);
 }
@@ -1408,6 +1488,28 @@ function dessinerAnneau(pt,r,f,a1,a2){
    elle s'allume et ses liens apparaissent, parcourus par la guirlande. */
 let selectionPres = null;
 let positionsEcran = [];   /* {id, x, y, r} en coordonnées d'écran, pour le clic */
+let pastilleEcran = null;  /* {x,y,w,h} de la pastille « ouvrir » de la planète allumée */
+
+/* La pastille « ouvrir » flotte au-dessus de la planète allumée, en coordonnées du monde. */
+function dessinerPastilleOuvrir(pt, r, t, cx, cy, ech){
+  const lib = "ouvrir ↗";
+  ctx.save();
+  ctx.font = "600 11px 'Segoe UI',sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  const w = ctx.measureText(lib).width + 18, h = 20;
+  const x = pt.x, y = pt.y - r - 22 - Math.sin(t*3)*1.2;
+  ctx.shadowColor="rgba(255,231,100,.55)"; ctx.shadowBlur=10;
+  ctx.fillStyle="rgba(10,24,40,.92)";
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x-w/2,y-h/2,w,h,10) : ctx.rect(x-w/2,y-h/2,w,h); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle="rgba(255,231,100,.85)"; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle="#FFE764"; ctx.fillText(lib, x, y+0.5);
+  ctx.restore();
+  pastilleEcran = {x:cx+(x-w/2-foyer.x)*ech, y:cy+(y-h/2-foyer.y)*ech, w:w*ech, h:h*ech};
+}
+function surPastille(x,y){
+  const q = pastilleEcran; if(!q) return false;
+  return x>=q.x-6 && x<=q.x+q.w+6 && y>=q.y-6 && y<=q.y+q.h+6;
+}
 
 function dessinerLiensPres(monde, t, ech){
   if(!selectionPres || !monde[selectionPres]) return;
@@ -1514,6 +1616,7 @@ function dessinerCiel(now){
 
   const etiquettes=[];
   positionsEcran = [];
+  pastilleEcran = null;
   for(const it of liste){
     if(it.soleil){ dessinerSoleil(t,pSoleil); continue; }
     const app = doux?1:borne((t-(1.5+it.b.ordre*0.075))/0.8,0,1);
@@ -1525,6 +1628,7 @@ function dessinerCiel(now){
       ctx.shadowColor="rgba(255,231,100,.8)"; ctx.shadowBlur=12;
       ctx.beginPath(); ctx.arc(it.pr.x,it.pr.y,r+7+Math.sin(t*3)*1.2,0,7); ctx.stroke();
       ctx.restore();
+      if(adresseDe(it.b.id) && app>=1) dessinerPastilleOuvrir(it.pr, r, t, cx, cy, ech);
     }
     positionsEcran.push({id:it.b.id, x:cx+(it.pr.x-foyer.x)*ech, y:cy+(it.pr.y-foyer.y)*ech, r:r*ech});
     etiquettes.push({pt:it.pr,b:it.b,r,f:app});
@@ -1584,8 +1688,19 @@ cv.addEventListener("pointerup",e=>{
   /* pendant la visite guidée, un clic passe au module suivant */
   if(visite.actif){ clearTimeout(visite.minuteur); etape(visite.etape+1); return; }
   const rect=cv.getBoundingClientRect();
-  const id=planeteSousLeCurseur(e.clientX-rect.left, e.clientY-rect.top);
-  selectionPres = (id && id!==selectionPres) ? id : null;
+  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+  /* la pastille « ouvrir », ou un second clic sur la planète déjà allumée, ouvre l'application */
+  if(selectionPres && surPastille(sx,sy) && ouvrirAppli(selectionPres)) return;
+  const id=planeteSousLeCurseur(sx,sy);
+  if(id && id===selectionPres){ if(ouvrirAppli(id)) return; selectionPres=null; return; }
+  if(id && (e.ctrlKey||e.metaKey) && ouvrirAppli(id)) return;
+  selectionPres = id || null;
+});
+cv.addEventListener("pointermove",e=>{
+  if(glisse) return;
+  const rect=cv.getBoundingClientRect();
+  const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+  cv.style.cursor = (planeteSousLeCurseur(sx,sy) || (selectionPres && surPastille(sx,sy))) ? "pointer" : "";
 });
 cv.addEventListener("pointercancel",()=>glisse=false);
 cv.addEventListener("wheel",e=>{e.preventDefault();zoomCible=borne(zoomCible*(e.deltaY>0?0.92:1.08),0.5,2.6);},{passive:false});
