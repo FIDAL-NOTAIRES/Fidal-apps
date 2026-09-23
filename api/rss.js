@@ -17,9 +17,6 @@ export const config = { maxDuration: 30 };
 
 const SOURCES = [
   /* ---------- Juridique & notarial ---------- */
-  { id:"village",  g:"juridique", n:"Village de la Justice", d:"village-justice.com", une:true,
-    us:["https://www.village-justice.com/articles/spip.php?page=backend"],
-    min:5, gn:"village-justice.com" },
   { id:"actuju",   g:"juridique", n:"Actu-Juridique",        d:"actu-juridique.fr", une:true,
     us:["https://www.actu-juridique.fr/feed/"] },
   { id:"dalloz",   g:"juridique", n:"Dalloz Actualité",      d:"dalloz-actualite.fr", une:true,
@@ -57,6 +54,10 @@ const SOURCES = [
     us:["https://www.lemonde.fr/rss/une.xml"] },
   { id:"lefigaro", g:"generale", n:"Le Figaro",    d:"lefigaro.fr", une:true,
     us:["https://www.lefigaro.fr/rss/figaro_actualites.xml"] },
+  { id:"lacroix",  g:"generale", n:"La Croix",     d:"la-croix.com", une:false,
+    us:["https://www.la-croix.com/feeds/rss/site.xml",
+        "https://www.la-croix.com/RSS/UNIVERS",
+        "https://www.la-croix.com/RSS"], gn:"la-croix.com" },
   { id:"libe",     g:"generale", n:"Libération",   d:"liberation.fr", une:false,
     us:["https://www.liberation.fr/arc/outboundfeeds/rss-all/?outputType=xml"] },
   { id:"finfo",    g:"generale", n:"France Info",  d:"francetvinfo.fr", une:true,
