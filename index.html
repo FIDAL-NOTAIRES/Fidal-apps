@@ -651,9 +651,18 @@
     stroke-linecap:round;stroke-linejoin:round;}
 
 </style>
+<style>
+  /* Bandeau d'incidents commun (18/10/2026) : le lanceur est une coque de téléphone aux écrans superposés ; le bandeau se pose donc dans un emplacement dédié,
+     sous la fausse barre d'état (ou sous la zone sûre quand l'app est installée) et sous l'écran d'une application ouverte, qui affiche alors son propre bandeau. */
+  #fidal-bandeau-zone{position:absolute;left:0;right:0;top:calc(44px + var(--safe-top));z-index:8}
+  @media (display-mode:standalone),(display-mode:fullscreen){ #fidal-bandeau-zone{top:var(--safe-top)} }
+  body.standalone #fidal-bandeau-zone{top:var(--safe-top)}
+</style>
+<script src="https://connexion-omega.vercel.app/bandeau.js" defer></script>
 </head>
 <body>
 <div id="device">
+  <div id="fidal-bandeau-zone"></div>
 
   <!-- status bar -->
   <div class="statusbar">
